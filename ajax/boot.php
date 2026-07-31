@@ -112,7 +112,7 @@ Endpoint::json([
         'newNotification'      => __('New notification', 'notifier'),
         'andOthers'            => __('{name} and {n} others', 'notifier'),
 
-        'tabNotes'             => __('Tasks', 'notifier'),
+        'tabNotes'             => __('Reminders', 'notifier'),
         'notePlaceholder'      => __('What still needs doing?', 'notifier'),
         'noteNew'              => __('New task', 'notifier'),
         'noteWhen'             => __('Remind me at', 'notifier'),

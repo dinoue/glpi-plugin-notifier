@@ -316,19 +316,25 @@
 
 .notifier-bell-search > i {
     position: absolute;
-    left: 11px;
+    left: 13px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--notifier-text-muted);
     font-size: 12px;
+    line-height: 1;
     pointer-events: none;
+    z-index: 1;
 }
 
-.notifier-bell-search .notifier-bell-search-input {
+/* Themes set input padding with weights this file cannot outrank, and
+   losing it puts the placeholder underneath the magnifier. Only these two
+   declarations need forcing. */
+.notifier-bell-panel .notifier-bell-search .notifier-bell-search-input {
     display: block;
     width: 100%;
     margin: 0;
-    padding: 8px 32px;
+    padding: 8px 34px 8px 36px !important;
+    text-indent: 0 !important;
     height: auto;
     appearance: none;
     -webkit-appearance: none;
@@ -344,8 +350,8 @@
     transition: border-color .12s ease, box-shadow .12s ease;
 }
 
-.notifier-bell-search .notifier-bell-search-input:focus,
-.notifier-bell-search .notifier-bell-search-input:focus-visible {
+.notifier-bell-panel .notifier-bell-search .notifier-bell-search-input:focus,
+.notifier-bell-panel .notifier-bell-search .notifier-bell-search-input:focus-visible {
     outline: 0;
     border-color: var(--notifier-primary);
     box-shadow: 0 0 0 3px rgba(var(--notifier-primary-rgb), .16);
@@ -1179,6 +1185,7 @@
     display: none;
 }
 
+/* Shown only for overdue tasks, so it is always an alert. */
 .notifier-bell-tab-count {
     display: inline-flex;
     align-items: center;
@@ -1188,15 +1195,10 @@
     margin-left: 3px;
     padding: 0 5px;
     border-radius: 8px;
-    background: var(--notifier-border);
-    color: var(--notifier-text);
-    font-size: 10px;
-    font-weight: 700;
-}
-
-.notifier-bell-tab-count.is-due {
     background: var(--notifier-danger);
     color: #fff;
+    font-size: 10px;
+    font-weight: 700;
 }
 
 .notifier-bell-tab-count[hidden] {

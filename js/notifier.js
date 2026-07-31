@@ -104,7 +104,7 @@
         permissionDenied:    'Your browser blocked notifications for this site.',
         newNotification:     'New notification',
         andOthers:           '{name} and {n} others',
-        tabNotes:            'Tasks',
+        tabNotes:            'Reminders',
         notePlaceholder:     'What still needs doing?',
         noteNew:             'New task',
         noteWhen:            'Remind me at',
@@ -582,12 +582,12 @@
             btn.setAttribute('aria-selected', String(isActive));
         });
 
-        var openNotes = state.notes.filter(function(n) { return !n.is_done; }).length;
-        var tabCount  = bell.querySelector('.notifier-bell-tab-count');
+        // Only overdue tasks get a number. A pending one is a list entry,
+        // not an alert, and a badge on it reads as "act on this now".
+        var tabCount = bell.querySelector('.notifier-bell-tab-count');
         if (tabCount) {
-            tabCount.textContent = String(openNotes);
-            tabCount.hidden = openNotes === 0;
-            tabCount.classList.toggle('is-due', state.notesDue > 0);
+            tabCount.textContent = String(state.notesDue);
+            tabCount.hidden = state.notesDue === 0;
         }
 
         var clearBtn = bell.querySelector('.notifier-bell-search-clear');

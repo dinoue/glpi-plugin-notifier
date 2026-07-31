@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: notifier 1.0.2\n"
 "Report-Msgid-Bugs-To: https://github.com/dvbnl/glpi-plugin-notifier/issues\n"
-"POT-Creation-Date: 2026-07-31 16:15+0200\n"
+"POT-Creation-Date: 2026-07-31 16:23+0200\n"
 "PO-Revision-Date: 2026-04-15 00:00+0000\n"
 "Last-Translator: DVBNL\n"
 "Language-Team: Nederlands\n"
@@ -505,8 +505,8 @@ msgid "{name} and {n} others"
 msgstr "{name} en {n} anderen"
 
 #: ajax/boot.php:115
-msgid "Tasks"
-msgstr "Taken"
+msgid "Reminders"
+msgstr "Reminders"
 
 #: ajax/boot.php:116
 msgid "What still needs doing?"
@@ -555,6 +555,9 @@ msgstr "Verlopen"
 #: ajax/boot.php:128
 msgid "Reminder"
 msgstr "Herinnering"
+
+#~ msgid "Tasks"
+#~ msgstr "Taken"
 
 #~ msgid "Off by default: only the central (technician) interface gets a bell."
 #~ msgstr ""
