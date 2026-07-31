@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  php:
+    name: PHP ${{ matrix.php }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.1', '8.2', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Lint PHP
+        run: find . -path ./vendor -prune -o -name '*.php' -print0 | xargs -0 -n1 -P4 php -l
+
+      - name: Unit tests
+        run: php tests/run.php
+
+  assets:
+    name: Assets and metadata
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # The v1.0.2 and v1.0.3 releases both shipped a public/ copy that
+      # had drifted from css/ and js/. This gate is why that cannot
+      # happen a third time.
+      - name: Check generated assets are in sync
+        run: bash tools/sync-assets.sh --check
+
+      - name: Lint JavaScript
+        run: node --check js/notifier.js
+
+      - name: Validate plugin XML
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq libxml2-utils
+          xmllint --noout notifier.xml
+
+      - name: Check version consistency
+        run: bash tools/check-version.sh

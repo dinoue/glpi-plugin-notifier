@@ -1,21 +1,24 @@
 <?php
 
-// GET (not POST): see markread.php for the rationale.
+// Mutating: see markread.php.
+
+use GlpiPlugin\Notifier\Endpoint;
+use GlpiPlugin\Notifier\Notification;
 
 if (!defined('GLPI_ROOT')) {
     include(dirname(__DIR__, 3) . '/inc/includes.php');
 }
 
-header('Content-Type: application/json');
+Endpoint::begin();
+Endpoint::requireToken();
 
-Session::checkLoginUser();
+$users_id = Endpoint::currentUser();
+$id       = Endpoint::intParam('id');
 
-$users_id = (int)Session::getLoginUserID();
-$id       = (int)($_GET['id'] ?? $_POST['id'] ?? 0);
+$ok = Notification::markUnread($id, $users_id);
 
-$ok = GlpiPlugin\Notifier\Notification::markUnread($id, $users_id);
-
-echo json_encode([
-    'success' => $ok,
-    'unread'  => GlpiPlugin\Notifier\Notification::countUnread($users_id),
+Endpoint::json([
+    'success'       => $ok,
+    'unread'        => Notification::countUnread($users_id),
+    'unread_groups' => Notification::countUnreadGroups($users_id),
 ]);

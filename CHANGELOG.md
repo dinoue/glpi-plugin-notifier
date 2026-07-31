@@ -2,6 +2,52 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.4] - 2026-07-31
+
+### Added
+- **Personal task list**: a third tab in the panel holding a plain checklist — "call Henk at 15:00", "chase that licence tomorrow". Things that are not tickets and do not belong in one, but that you want in the place you already watch. A task can carry a reminder time or none at all; an overdue one turns red, counts into the bell badge, and fires a desktop notification the minute it comes due. Reminders that matured while you were away announce themselves as soon as you load a page. Ticked items stay visible for a week in case you undo, then a cron purges them. Kept deliberately outside the notifications table: a personal note has no entity, no actor and no source item, so neither the entity filter nor the event preferences apply to it
+- **@-mentions**: naming someone in a followup, task, solution or the item description now fires a dedicated "You were mentioned" bell (icon: at-sign), even when that person is not an actor on the item. Both GLPI's native rich-text mention markup (`data-user-mention` / `data-user-id`, 10.0.7+) and plain `@login` are recognised. A mention replaces the generic "New comment" bell for that user rather than stacking on top of it, and a broad per-type opt-out cannot silence it — being named is explicit
+- **Deadline notifications**: a new `NotifierDeadline` cron task warns every assignee before `time_to_resolve` is reached, and again once it is breached. Exactly one bell per phase per deadline; moving the deadline re-arms both. Lead time is configurable, default 60 minutes
+- **Quick actions**: assign the item to yourself, change its status, or post a short followup straight from the bell without leaving the page. Every action re-loads the item and goes through GLPI's own rights check — the notification row grants nothing. Solved and closed are deliberately not offered, since those need a real solution
+- **Snooze**: hide a notification for an hour, three hours, or until tomorrow morning instead of marking it read
+- **Desktop notifications and sound**: both opt-in per user from the preferences dialog. One system popup per arriving batch rather than one per row; the chime is synthesised in the browser, so no audio file ships and nothing for a strict CSP to block
+- **Unread count in the browser tab title**, so the count is visible without switching tabs
+- **Search and pagination in the panel**: a search box filters on title and message server-side, and a "Load more" button pages through the history instead of stopping at a hard 25
+- **Per-event preferences**: users can now opt out of individual event types ("no more `updated` bells, keep `assigned`") on top of the existing per-type and per-channel matrix
+- **Admin configuration page** under Setup > Plugins: polling interval, page size, retention, deadline lead time, feature toggles, global per-event kill switches, and whether the self-service interface gets a bell at all
+- **Retention cleanup**: a `NotifierCleanup` cron task purges read notifications past the configured age (default 90 days) and unread ones at three times that, so the table can no longer grow without bound
+- **Self-service support**: the bell now appears for every logged-in user, including the self-service (helpdesk) interface, which previously never loaded it. An administrator can restrict it back to the central interface from the configuration page
+- **Entity awareness**: notifications record the entity of their source item and are filtered against the viewer's active entities on read. Existing rows are backfilled from their source item during the upgrade
+- **Unit tests and CI**: a dependency-free suite (`php tests/run.php`, 81 assertions) covers mention parsing, followup sanitisation, config clamping, and the itemtype/status whitelists. GitHub Actions lints PHP on 8.1–8.3, lints the JavaScript, validates the plugin XML, checks that the version agrees across `setup.php`, `notifier.xml` and this file, and fails the build if `public/` has drifted from `css/` and `js/`
+
+### Changed
+- **CSRF protection on every mutating endpoint**: `markread`, `markunread`, `markallread`, `preferences`, `snooze` and `action` now require a per-session secret in an `X-Notifier-Token` header. Cross-origin pages cannot set a custom header without a CORS preflight we never answer, and no form, image or prefetch can set one at all. This replaces the previous unauthenticated GETs, and avoids both GLPI 11's `CheckCsrfListener` rejecting minted tokens on POST and GLPI 10's single-use tokens forcing a second round trip before every click. Requests are additionally rejected when `Sec-Fetch-Site` says they are cross-origin
+- **Polling got much cheaper**: a hidden tab stops polling entirely, unchanged responses come back as a bodyless `304` via `ETag`, and an idle session backs off progressively up to 8x the configured interval. The `ETag` fingerprint deliberately tracks expiring snooze timers so a snoozed row reappears on its own
+- **Notification rows now carry an avatar**: the actor's initials in a stable per-person colour, with the event type as a corner badge. Grouped rows summarise the actors as "Jane and 2 others" instead of showing only the most recent one
+- **Preferences dialog restructured** into three sections — which items, which events, how to be alerted — instead of a single matrix
+- **`ajax/i18n.php` and `ajax/csrftoken.php` are gone**, replaced by a single `ajax/boot.php` that returns the session token, translations, instance settings, the user's preferences and the quick-action status list in one request on page load
+- **Soft-deleted items no longer nag**: moving a Ticket / Change / Problem / Project task to the bin marks its outstanding bells read instead of deleting them, so a restore is not lossy. Purging still deletes them outright
+
+### Fixed
+- **SQL injection in the notification search** (found by security review before release): the new `?q=` parameter was un-escaped by the shared parameter reader before reaching a `LIKE` clause. On GLPI 10 that removed the core's own escaping of superglobals, and GLPI 10's query builder does not escape again — so any authenticated user, self-service included, could break out of the string literal and read arbitrary tables. Parameters bound for SQL are now passed through exactly as the core handed them over, with a regression test covering it
+- **Wrong asset base URL on marketplace installs**: the client guessed its endpoint prefix from the page path, which produced `/marketplace/notifier/plugins/notifier/…` and a 404 on every request for plugins installed through the GLPI marketplace rather than dropped into `plugins/`. It now derives the prefix from its own `<script src>`
+- **CSRF failure when saving the settings page on GLPI 11**: Symfony's `CheckCsrfListener` already validates and consumes the token before a legacy plugin file runs, so the explicit check afterwards failed on a token that no longer existed
+- **Unreadable text in dark themes**: muted text took `--tblr-secondary-color`, which several dark themes set to a near-black that vanishes against their own panel background. It is now derived from the resolved body colour, and the avatar uses a translucent hue with the theme's own text colour, so both work in light and dark without detecting which is active
+- **Double-bordered search box**: the theme's own input styling drew a second box inside the search field. The search and quick-action fields now out-specify it
+- **Panel could run off the top of the screen** on short viewports, since it is anchored to a bell at the bottom
+- **Reconnecting indicator was cryptic and flapped**: it showed a bare icon after a single failed poll. It now waits for two consecutive failures and carries a label
+- **`public/` had drifted from `css/` again**: `public/notifier.css` was missing the two validation-icon rules added in 1.0.3, so approval bells rendered without their stamp icon on GLPI 11 — the same class of bug as the 1.0.2 incident. `public/` is now generated by `tools/sync-assets.sh` and CI fails on any drift
+- **N+1 query on every poll**: `getForUser()` ran a separate `User::getFromDB()` per row to resolve the actor's name, costing 25 extra queries per user per poll. It is now a single `LEFT JOIN`
+- **Group fan-out no longer scales with group size**: assigning a 200-member group previously ran 400 queries inline in the request that saved the ticket (a dedup `SELECT` plus an `INSERT` per member). It is now one recipient check, one dedup scan and one multi-row insert regardless of group size
+- **Deduplication compared PHP's clock to the database's**: the 60-second window built its cutoff with PHP's `date()` and compared it against a MySQL `TIMESTAMP`, so any timezone or clock skew between the two either broke deduplication or suppressed real notifications. Timestamps are now stamped and compared entirely by the database
+- **Relative times were wrong for anyone not in the server's timezone**: the client parsed the raw database timestamp as browser-local, producing "3h" for a fresh notification, or negative ages. The API now sends an absolute epoch
+- **Notifications outlived the permissions that created them**: with no entity filter, a row kept showing its ticket's title after the item moved to another entity or the viewer lost access to it
+- **Disabled and deleted user accounts were still receiving notifications**, which mattered most on group fan-out, where stale members are common
+- **Unescaped translation strings in `title` attributes** on the row toggle buttons — the only place in the client that skipped `escapeHtml()`. A quote in a translation would have broken out of the attribute
+- **`markAllRead` from a background tab** no longer competes with an in-flight poll: concurrent refreshes are collapsed and re-run instead of being dropped
+- **Nested interactive elements**: the group row was a `role="button"` containing more buttons. The activatable region is now its own element, and the panel supports arrow-key navigation, Enter/Space activation, Escape to close, and focus trapping in the preferences dialog
+- **`prefers-reduced-motion`** is now respected; the bell no longer shakes and panels no longer animate for users who asked not to have that
+
 ## [1.0.3] - 2026-05-21
 
 ### Added

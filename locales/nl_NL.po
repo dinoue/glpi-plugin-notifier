@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: notifier 1.0.2\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-15 00:00+0000\n"
+"Report-Msgid-Bugs-To: https://github.com/dvbnl/glpi-plugin-notifier/issues\n"
+"POT-Creation-Date: 2026-07-31 16:15+0200\n"
 "PO-Revision-Date: 2026-04-15 00:00+0000\n"
 "Last-Translator: DVBNL\n"
 "Language-Team: Nederlands\n"
@@ -16,130 +16,546 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: setup.php:50 front/config.form.php:27
 msgid "Notifier - In-app notifications"
 msgstr "Notifier - In-app notificaties"
 
+#: front/config.form.php:22
+msgid "Settings saved"
+msgstr "Instellingen opgeslagen"
+
+#: src/Config.php:128
 msgid "Notifier"
 msgstr "Notifier"
 
-msgid "Notifications"
-msgstr "Notificaties"
+#: src/Config.php:145
+msgid "Notification bell settings"
+msgstr "Instellingen notificatiebel"
 
+#: src/Config.php:150
+msgid "General"
+msgstr "Algemeen"
+
+#: src/Config.php:154
+msgid "Polling interval (seconds)"
+msgstr "Ophaalinterval (seconden)"
+
+#: src/Config.php:157
+msgid ""
+"How often an open page checks for new notifications. Hidden tabs pause "
+"automatically."
+msgstr ""
+"Hoe vaak een openstaande pagina controleert op nieuwe notificaties. "
+"Verborgen tabbladen pauzeren automatisch."
+
+#: src/Config.php:162
+msgid "Notifications per page"
+msgstr "Notificaties per pagina"
+
+#: src/Config.php:165
+msgid "Size of one batch in the panel. Users can load more."
+msgstr "Aantal per keer in het paneel. Gebruikers kunnen meer laden."
+
+#: src/Config.php:170
+msgid "Retention (days)"
+msgstr "Bewaartermijn (dagen)"
+
+#: src/Config.php:173
+msgid ""
+"Read notifications older than this are purged by the NotifierCleanup cron "
+"task. 0 keeps everything."
+msgstr ""
+"Gelezen notificaties die ouder zijn dan dit worden opgeruimd door de cron-"
+"taak NotifierCleanup. 0 bewaart alles."
+
+#: src/Config.php:178
+msgid "Show the bell in the self-service interface"
+msgstr "Toon de bel in de selfserviceinterface"
+
+#: src/Config.php:180
+msgid ""
+"On by default. Turn this off to limit the bell to the central (technician) "
+"interface."
+msgstr ""
+"Standaard aan. Zet dit uit om de bel te beperken tot de centrale "
+"(technici)interface."
+
+#: src/Config.php:184
+msgid "Features"
+msgstr "Functies"
+
+#: src/Config.php:188
+msgid "Enable @-mentions"
+msgstr "@-vermeldingen inschakelen"
+
+#: src/Config.php:190
+msgid ""
+"Naming a user in a followup, task or solution notifies them even when they "
+"are not an actor on the item."
+msgstr ""
+"Een gebruiker noemen in een reactie, taak of oplossing waarschuwt hem ook "
+"wanneer hij geen actor op het item is."
+
+#: src/Config.php:195
+msgid "Enable quick actions"
+msgstr "Snelle acties inschakelen"
+
+#: src/Config.php:197
+msgid ""
+"Take the item, change its status or post a followup straight from the bell. "
+"Every action is rights-checked."
+msgstr ""
+"Neem het item over, wijzig de status of plaats een reactie rechtstreeks "
+"vanuit de bel. Elke actie wordt op rechten gecontroleerd."
+
+#: src/Config.php:202
+msgid "Enable snooze"
+msgstr "Snoozen inschakelen"
+
+#: src/Config.php:204
+msgid "Lets users hide a notification until later instead of marking it read."
+msgstr ""
+"Laat gebruikers een notificatie tot later verbergen in plaats van hem als "
+"gelezen te markeren."
+
+#: src/Config.php:209
+msgid "Enable deadline notifications"
+msgstr "Deadlinemeldingen inschakelen"
+
+#: src/Config.php:211
+msgid ""
+"The NotifierDeadline cron task warns assignees before and after the "
+"resolution deadline is reached."
+msgstr ""
+"De cron-taak NotifierDeadline waarschuwt toegewezen technici vóór en na het "
+"bereiken van de oplosdeadline."
+
+#: src/Config.php:216
+msgid "Deadline warning lead time (minutes)"
+msgstr "Waarschuwingstijd voor deadline (minuten)"
+
+#: src/Config.php:219
+msgid "How long before time to resolve the first warning fires."
+msgstr "Hoe lang vóór de oplostijd de eerste waarschuwing afgaat."
+
+#: src/Config.php:223
+msgid "Event types"
+msgstr "Gebeurtenistypen"
+
+#: src/Config.php:225
+msgid ""
+"Turn an event off here and it is never recorded for anyone. Users can "
+"additionally opt out per event in their own preferences."
+msgstr ""
+"Zet een gebeurtenis hier uit en hij wordt voor niemand meer vastgelegd. "
+"Gebruikers kunnen zich daarnaast per gebeurtenis afmelden in hun eigen "
+"voorkeuren."
+
+#: src/Config.php:239
+msgctxt "button"
+msgid "Save"
+msgstr "Opslaan"
+
+#: src/Notification.php:49
 msgid "Notification"
 msgid_plural "Notifications"
 msgstr[0] "Notificatie"
 msgstr[1] "Notificaties"
 
-msgid "Mark all as read"
-msgstr "Alles markeren als gelezen"
+#: src/Notification.php:77
+msgid "Assignment"
+msgstr "Toewijzing"
 
-msgid "Mark as read"
-msgstr "Markeren als gelezen"
+#: src/Notification.php:78
+msgid "Creation"
+msgstr "Aangemaakt"
 
-msgid "Mark as unread"
-msgstr "Markeren als ongelezen"
-
-msgid "No notifications"
-msgstr "Geen notificaties"
-
-msgid "Minimize"
-msgstr "Minimaliseren"
-
-msgid "Expand notifications"
-msgstr "Notificaties tonen"
-
-msgid "New item concerning you"
-msgstr "Nieuw item dat jou betreft"
-
-msgid "Status changed"
-msgstr "Status gewijzigd"
-
-msgid "Item updated"
-msgstr "Item bijgewerkt"
-
-msgid "New project task concerning you"
-msgstr "Nieuwe projecttaak die jou betreft"
-
-msgid "Project task updated"
-msgstr "Projecttaak bijgewerkt"
-
+#: src/Notification.php:79 src/Notification.php:442
 msgid "New comment"
 msgstr "Nieuwe reactie"
 
+#: src/Notification.php:80 src/Notification.php:489 ajax/boot.php:117
 msgid "New task"
 msgstr "Nieuwe taak"
 
+#: src/Notification.php:81 src/Notification.php:514
 msgid "Solution proposed"
 msgstr "Oplossing voorgesteld"
 
-msgid "You have been assigned"
-msgstr "Je bent toegewezen"
+#: src/Notification.php:82 src/Notification.php:369 src/Notification.php:411
+msgid "Status changed"
+msgstr "Status gewijzigd"
 
-msgid "Your group has been assigned"
-msgstr "Jouw groep is toegewezen"
+#: src/Notification.php:83 src/Notification.php:372
+msgid "Item updated"
+msgstr "Item bijgewerkt"
 
-msgid "You have been added to a project task"
-msgstr "Je bent toegevoegd aan een projecttaak"
+#: src/Notification.php:84
+msgid "Approval"
+msgstr "Goedkeuring"
 
+#: src/Notification.php:85
+msgid "Mention"
+msgstr "Vermelding"
+
+#: src/Notification.php:86
+msgid "Deadline"
+msgstr "Deadline"
+
+#: src/Notification.php:362
+msgid "New item concerning you"
+msgstr "Nieuw item dat jou betreft"
+
+#: src/Notification.php:403
+msgid "New project task concerning you"
+msgstr "Nieuwe projecttaak die jou betreft"
+
+#: src/Notification.php:414
+msgid "Project task updated"
+msgstr "Projecttaak bijgewerkt"
+
+#: src/Notification.php:577
 msgid "Approval requested"
 msgstr "Goedkeuring gevraagd"
 
+#: src/Notification.php:594
 msgid "Approval status changed"
 msgstr "Goedkeuringsstatus gewijzigd"
 
+#: src/Notification.php:652
+msgid "You have been assigned"
+msgstr "Je bent toegewezen"
+
+#: src/Notification.php:688
+msgid "Your group has been assigned"
+msgstr "Jouw groep is toegewezen"
+
+#: src/Notification.php:727
+msgid "You have been added to a project task"
+msgstr "Je bent toegevoegd aan een projecttaak"
+
+#: src/Notification.php:764
+msgid "You were mentioned"
+msgstr "Je bent genoemd"
+
+#: src/Notification.php:1496
+msgid "Purge old in-app notifications"
+msgstr "Oude in-app notificaties opruimen"
+
+#: src/Notification.php:1498
+msgid "Notify assignees about approaching resolution deadlines"
+msgstr "Toegewezen technici waarschuwen voor naderende oplosdeadlines"
+
+#: src/Notification.php:1633
+msgid "Resolution deadline passed"
+msgstr "Oplosdeadline verstreken"
+
+#: src/Notification.php:1634
+msgid "Resolution deadline approaching"
+msgstr "Oplosdeadline nadert"
+
+#: ajax/boot.php:49
+msgid "Notifications"
+msgstr "Notificaties"
+
+#: ajax/boot.php:50
+msgid "Mark all as read"
+msgstr "Alles markeren als gelezen"
+
+#: ajax/boot.php:51
+msgid "Mark as read"
+msgstr "Markeren als gelezen"
+
+#: ajax/boot.php:52
+msgid "Mark as unread"
+msgstr "Markeren als ongelezen"
+
+#: ajax/boot.php:53
+msgid "No notifications"
+msgstr "Geen notificaties"
+
+#: ajax/boot.php:54
 msgid "You're all caught up."
 msgstr "Alles is bijgewerkt."
 
+#: ajax/boot.php:55
+msgid "Nothing matches your search"
+msgstr "Niets komt overeen met je zoekopdracht"
+
+#: ajax/boot.php:56
+msgid "Try a different word, or clear the search box."
+msgstr "Probeer een ander woord of wis het zoekveld."
+
+#: ajax/boot.php:57
+msgid "Minimize"
+msgstr "Minimaliseren"
+
+#: ajax/boot.php:58
+msgid "Expand notifications"
+msgstr "Notificaties tonen"
+
+#: ajax/boot.php:59
 msgid "All"
 msgstr "Alle"
 
+#: ajax/boot.php:60
 msgid "Unread"
 msgstr "Ongelezen"
 
+#: ajax/boot.php:61
 msgid "Settings"
 msgstr "Instellingen"
 
+#: ajax/boot.php:62
 msgid "Notification preferences"
 msgstr "Notificatievoorkeuren"
 
-msgid "Choose which updates you want to receive. Direct updates are about items assigned to you; group updates are about items assigned to one of your groups."
-msgstr "Kies welke updates je wilt ontvangen. Directe updates gaan over items die aan jou zijn toegewezen; groepupdates gaan over items die aan een van je groepen zijn toegewezen."
+#: ajax/boot.php:63
+msgid ""
+"Choose which updates you want to receive. Direct updates are about items "
+"assigned to you; group updates are about items assigned to one of your "
+"groups."
+msgstr ""
+"Kies welke updates je wilt ontvangen. Directe updates gaan over items die "
+"aan jou zijn toegewezen; groepupdates gaan over items die aan een van je "
+"groepen zijn toegewezen."
 
+#: ajax/boot.php:64
 msgid "Assigned to me"
 msgstr "Aan mij toegewezen"
 
+#: ajax/boot.php:65
 msgid "Assigned to my group"
 msgstr "Aan mijn groep toegewezen"
 
+#: ajax/boot.php:66
 msgid "Tickets"
 msgstr "Tickets"
 
+#: ajax/boot.php:67
 msgid "Changes"
 msgstr "Wijzigingen"
 
+#: ajax/boot.php:68
 msgid "Problems"
 msgstr "Problemen"
 
+#: ajax/boot.php:69
 msgid "Project tasks"
 msgstr "Projecttaken"
 
+#: ajax/boot.php:70
 msgid "Save"
 msgstr "Opslaan"
 
+#: ajax/boot.php:71
 msgid "Cancel"
 msgstr "Annuleren"
 
+#: ajax/boot.php:72
 msgid "Preferences saved"
 msgstr "Voorkeuren opgeslagen"
 
+#: ajax/boot.php:73
 msgid "Close"
 msgstr "Sluiten"
 
+#: ajax/boot.php:74
 msgid "{n} updates"
 msgstr "{n} updates"
 
+#: ajax/boot.php:75
 msgid "Show all updates"
 msgstr "Alle updates tonen"
 
+#: ajax/boot.php:76
 msgid "Hide updates"
 msgstr "Updates verbergen"
+
+#: ajax/boot.php:78
+msgid "Search"
+msgstr "Zoeken"
+
+#: ajax/boot.php:79
+msgid "Search notifications"
+msgstr "Notificaties zoeken"
+
+#: ajax/boot.php:80
+msgid "Clear search"
+msgstr "Zoekopdracht wissen"
+
+#: ajax/boot.php:81
+msgid "Load more"
+msgstr "Meer laden"
+
+#: ajax/boot.php:82
+msgid "Loading"
+msgstr "Laden"
+
+#: ajax/boot.php:83
+msgid "Refresh"
+msgstr "Vernieuwen"
+
+#: ajax/boot.php:84
+msgid "Reconnecting"
+msgstr "Opnieuw verbinden"
+
+#: ajax/boot.php:86
+msgid "Snooze"
+msgstr "Snoozen"
+
+#: ajax/boot.php:87
+msgid "For 1 hour"
+msgstr "Voor 1 uur"
+
+#: ajax/boot.php:88
+msgid "For 3 hours"
+msgstr "Voor 3 uur"
+
+#: ajax/boot.php:89
+msgid "Until tomorrow morning"
+msgstr "Tot morgenochtend"
+
+#: ajax/boot.php:90
+msgid "Snoozed"
+msgstr "Gesnoozed"
+
+#: ajax/boot.php:92
+msgid "Quick actions"
+msgstr "Snelle acties"
+
+#: ajax/boot.php:93
+msgid "Assign to me"
+msgstr "Aan mij toewijzen"
+
+#: ajax/boot.php:94
+msgid "Change status"
+msgstr "Status wijzigen"
+
+#: ajax/boot.php:95
+msgid "Reply"
+msgstr "Antwoorden"
+
+#: ajax/boot.php:96
+msgid "Write a short reply…"
+msgstr "Schrijf een kort antwoord…"
+
+#: ajax/boot.php:97
+msgid "Send"
+msgstr "Versturen"
+
+#: ajax/boot.php:98
+msgid "Done"
+msgstr "Gelukt"
+
+#: ajax/boot.php:99
+msgid "That did not work"
+msgstr "Dat is niet gelukt"
+
+#: ajax/boot.php:100
+msgid "You are not allowed to do that"
+msgstr "Je hebt hier geen rechten voor"
+
+#: ajax/boot.php:102
+msgid "Which items"
+msgstr "Welke items"
+
+#: ajax/boot.php:103
+msgid "Which events"
+msgstr "Welke gebeurtenissen"
+
+#: ajax/boot.php:104
+msgid "How to be alerted"
+msgstr "Hoe je gewaarschuwd wordt"
+
+#: ajax/boot.php:105
+msgid "Turn off the event types you never want to see in the bell."
+msgstr "Zet de gebeurtenistypen uit die je nooit in de bel wilt zien."
+
+#: ajax/boot.php:106
+msgid "Desktop notifications"
+msgstr "Bureaubladmeldingen"
+
+#: ajax/boot.php:107
+msgid ""
+"Show a system notification when something new arrives. Your browser will ask "
+"for permission."
+msgstr ""
+"Toon een systeemmelding wanneer er iets nieuws binnenkomt. Je browser vraagt "
+"om toestemming."
+
+#: ajax/boot.php:108
+msgid "Play a sound"
+msgstr "Geluid afspelen"
+
+#: ajax/boot.php:109
+msgid "A short chime when a new notification arrives."
+msgstr "Een kort geluidje wanneer er een nieuwe notificatie binnenkomt."
+
+#: ajax/boot.php:110
+msgid "Your browser blocked notifications for this site."
+msgstr "Je browser blokkeert meldingen voor deze site."
+
+#: ajax/boot.php:112
+msgid "New notification"
+msgstr "Nieuwe notificatie"
+
+#: ajax/boot.php:113
+msgid "{name} and {n} others"
+msgstr "{name} en {n} anderen"
+
+#: ajax/boot.php:115
+msgid "Tasks"
+msgstr "Taken"
+
+#: ajax/boot.php:116
+msgid "What still needs doing?"
+msgstr "Wat moet er nog gebeuren?"
+
+#: ajax/boot.php:118
+msgid "Remind me at"
+msgstr "Herinner me om"
+
+#: ajax/boot.php:119
+msgid "In 1 hour"
+msgstr "Over 1 uur"
+
+#: ajax/boot.php:120
+msgid "Tomorrow 9:00"
+msgstr "Morgen 9:00"
+
+#: ajax/boot.php:121
+msgid "Add"
+msgstr "Toevoegen"
+
+#: ajax/boot.php:122
+msgid "Nothing on your list"
+msgstr "Niets op je lijstje"
+
+#: ajax/boot.php:123
+msgid "Jot something down and it will find you here."
+msgstr "Schrijf iets op, dan vind je het hier terug."
+
+#: ajax/boot.php:124
+msgid "Mark as done"
+msgstr "Afvinken"
+
+#: ajax/boot.php:125
+msgid "Not done yet"
+msgstr "Toch nog niet klaar"
+
+#: ajax/boot.php:126
+msgid "Delete"
+msgstr "Verwijderen"
+
+#: ajax/boot.php:127
+msgid "Due"
+msgstr "Verlopen"
+
+#: ajax/boot.php:128
+msgid "Reminder"
+msgstr "Herinnering"
+
+#~ msgid "Off by default: only the central (technician) interface gets a bell."
+#~ msgstr ""
+#~ "Standaard uit: alleen de centrale (technici)interface krijgt een bel."

@@ -17,13 +17,31 @@
     --notifier-info:          var(--tblr-info, #0dcaf0);
     --notifier-purple:        var(--tblr-purple, #6f42c1);
     --notifier-teal:          var(--tblr-teal, #20c997);
+    --notifier-pink:          var(--tblr-pink, #d63384);
     --notifier-surface:       var(--tblr-bg-surface, #fff);
     --notifier-surface-alt:   var(--tblr-bg-surface-secondary, #f8f9fa);
     --notifier-border:        var(--tblr-border-color, rgba(0, 0, 0, .1));
     --notifier-text:          var(--tblr-body-color, #212529);
-    --notifier-text-muted:    var(--tblr-secondary-color, #6c757d);
+    /* Derived from the resolved body colour, never from
+       --tblr-secondary-color: dark themes routinely set that to a
+       near-black that vanishes against their own panel background. */
+    --notifier-text-muted:    color-mix(in srgb, var(--notifier-text) 72%, transparent);
     --notifier-row-hover:     var(--tblr-bg-surface-tertiary, #f1f3f5);
 }
+
+.notifier-visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* ====== Floating shell ====== */
 
 .notifier-bell-wrap {
     position: relative;
@@ -43,6 +61,7 @@
     left: auto;
     z-index: 10050;
     margin-right: 0;
+    transition: right .2s ease;
 }
 
 .notifier-bell-wrap.notifier-bell-floating .notifier-bell-btn {
@@ -81,15 +100,10 @@
 
 .notifier-bell-wrap.notifier-bell-floating.is-collapsed {
     right: -36px;
-    transition: right .2s ease;
 }
 
 .notifier-bell-wrap.notifier-bell-floating.is-collapsed:hover {
     right: -20px;
-}
-
-.notifier-bell-wrap.notifier-bell-floating:not(.is-collapsed) {
-    transition: right .2s ease;
 }
 
 .notifier-bell-wrap.notifier-bell-floating.is-collapsed .notifier-bell-panel {
@@ -130,19 +144,6 @@
     transform-origin: bottom right;
 }
 
-@media (max-width: 600px) {
-    .notifier-bell-wrap.notifier-bell-floating {
-        bottom: 14px;
-        right: 14px;
-    }
-    .notifier-bell-wrap.notifier-bell-floating .notifier-bell-panel {
-        width: calc(100vw - 28px);
-        max-width: 460px;
-        max-height: 75vh;
-        right: 0;
-    }
-}
-
 .notifier-bell-btn {
     background: transparent;
     border: 0;
@@ -162,8 +163,10 @@
     outline: 0;
 }
 
-.notifier-bell-wrap.has-unread .notifier-bell-btn {
-    animation: notifier-pulse 2s ease-in-out 1;
+/* Fires once per arriving batch, not on every render — the class is
+   removed and re-added by the client to restart the animation. */
+.notifier-bell-wrap.has-arrival .notifier-bell-btn {
+    animation: notifier-pulse 1.2s ease-in-out 1;
 }
 
 @keyframes notifier-pulse {
@@ -191,15 +194,19 @@
     pointer-events: none;
 }
 
+/* ====== Panel ====== */
+
 .notifier-bell-panel {
     position: absolute;
     top: calc(100% + 6px);
     right: 0;
     width: 440px;
-    max-height: 620px;
+    /* Anchored to the bell at the bottom of the viewport, so the cap has
+       to leave room or the panel runs off the top of the screen. */
+    max-height: min(640px, calc(100vh - 130px));
     background: var(--notifier-surface);
     border: 1px solid var(--notifier-border);
-    border-radius: 14px;
+    border-radius: 16px;
     box-shadow: 0 18px 48px rgba(0, 0, 0, .22);
     z-index: 10000;
     display: flex;
@@ -226,27 +233,167 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 18px 10px;
+    padding: 14px 16px 10px;
 }
 
 .notifier-bell-panel-title {
     font-weight: 700;
     font-size: 16px;
     color: var(--notifier-text);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .notifier-bell-panel-count {
-    color: var(--notifier-text-muted);
-    font-weight: 500;
-    font-size: 14px;
-    margin-left: 2px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    height: 20px;
+    padding: 0 7px;
+    border-radius: 10px;
+    background: rgba(var(--notifier-primary-rgb), .12);
+    color: var(--notifier-primary);
+    font-weight: 700;
+    font-size: 11px;
 }
+
+.notifier-bell-panel-tools {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.notifier-bell-offline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: color-mix(in srgb, var(--notifier-warning), transparent 86%);
+    color: var(--notifier-warning);
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.notifier-bell-offline[hidden] {
+    display: none;
+}
+
+.notifier-bell-minimize {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--notifier-text-muted);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.notifier-bell-minimize:hover,
+.notifier-bell-minimize:focus-visible {
+    background: rgba(0, 0, 0, .08);
+    color: var(--notifier-text);
+    outline: 0;
+}
+
+/* ====== Search ====== */
+
+/* The input is the only bordered element here. An earlier version put a
+   border on this wrapper too, and every theme that styles inputs drew a
+   second box inside the first — one element cannot nest. */
+.notifier-bell-search {
+    position: relative;
+    margin: 0 16px 10px;
+}
+
+.notifier-bell-search > i {
+    position: absolute;
+    left: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--notifier-text-muted);
+    font-size: 12px;
+    pointer-events: none;
+}
+
+.notifier-bell-search .notifier-bell-search-input {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 8px 32px;
+    height: auto;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid var(--notifier-border);
+    border-radius: 9px;
+    outline: 0;
+    box-shadow: none;
+    background: var(--notifier-surface-alt);
+    color: var(--notifier-text);
+    font-size: 13px;
+    font-family: inherit;
+    line-height: 1.4;
+    transition: border-color .12s ease, box-shadow .12s ease;
+}
+
+.notifier-bell-search .notifier-bell-search-input:focus,
+.notifier-bell-search .notifier-bell-search-input:focus-visible {
+    outline: 0;
+    border-color: var(--notifier-primary);
+    box-shadow: 0 0 0 3px rgba(var(--notifier-primary-rgb), .16);
+}
+
+.notifier-bell-search-input::-webkit-search-cancel-button,
+.notifier-bell-search-input::-webkit-search-decoration {
+    display: none;
+    -webkit-appearance: none;
+}
+
+.notifier-bell-search-input::placeholder {
+    color: var(--notifier-text-muted);
+    opacity: 1;
+}
+
+.notifier-bell-search-clear {
+    position: absolute;
+    right: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--notifier-text-muted);
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.notifier-bell-search-clear:hover {
+    background: var(--notifier-row-hover);
+    color: var(--notifier-text);
+}
+
+.notifier-bell-search-clear[hidden] {
+    display: none;
+}
+
+/* ====== Tabs ====== */
 
 .notifier-bell-tabs {
     display: flex;
     align-items: center;
     gap: 6px;
-    padding: 0 18px;
+    padding: 0 16px;
     border-bottom: 1px solid var(--notifier-border);
     min-height: 40px;
 }
@@ -266,8 +413,10 @@
     transition: color .12s ease;
 }
 
-.notifier-bell-tab:hover {
+.notifier-bell-tab:hover,
+.notifier-bell-tab:focus-visible {
     color: var(--notifier-text);
+    outline: 0;
 }
 
 .notifier-bell-tab.is-active {
@@ -294,31 +443,18 @@
     cursor: pointer;
     padding: 4px 8px;
     border-radius: 6px;
-}
-
-.notifier-bell-markall:hover {
-    background: rgba(var(--notifier-primary-rgb), .08);
-}
-
-.notifier-bell-minimize {
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    border: 0;
-    border-radius: 6px;
-    background: transparent;
-    color: var(--notifier-text-muted);
-    cursor: pointer;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    font-size: 12px;
+    gap: 6px;
 }
 
-.notifier-bell-minimize:hover {
-    background: rgba(0, 0, 0, .08);
-    color: var(--notifier-text);
+.notifier-bell-markall:hover,
+.notifier-bell-markall:focus-visible {
+    background: rgba(var(--notifier-primary-rgb), .08);
+    outline: 0;
 }
+
+/* ====== List ====== */
 
 .notifier-bell-panel-body {
     flex: 1;
@@ -339,26 +475,38 @@
 
 .notifier-bell-item {
     display: flex;
-    gap: 12px;
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--notifier-border);
+    align-items: flex-start;
+    gap: 4px;
+    padding: 12px 12px 12px 14px;
     cursor: pointer;
     transition: background-color .12s ease;
     background: var(--notifier-surface);
 }
 
-.notifier-bell-item:last-child {
-    border-bottom: 0;
+.notifier-bell-group-main {
+    display: flex;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+    align-items: flex-start;
+    cursor: pointer;
+    border-radius: 8px;
+}
+
+.notifier-bell-group-main:focus-visible {
+    outline: 2px solid var(--notifier-primary);
+    outline-offset: 2px;
 }
 
 .notifier-bell-item:hover {
     background: var(--notifier-row-hover);
 }
 
+/* Unread reads as a state, not a stripe: accent rail, soft tint, and a
+   heavier title all pointing the same direction. */
 .notifier-bell-item.is-unread {
     background: rgba(var(--notifier-primary-rgb), .07);
-    border-left: 3px solid var(--notifier-primary);
-    padding-left: 13px;
+    box-shadow: inset 3px 0 0 0 var(--notifier-primary);
 }
 
 .notifier-bell-item.is-unread .notifier-bell-item-title {
@@ -373,30 +521,6 @@
 .notifier-bell-item.is-unread:hover {
     background: rgba(var(--notifier-primary-rgb), .12);
 }
-
-.notifier-bell-item-icon {
-    flex: 0 0 auto;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: var(--notifier-surface-alt);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--notifier-text-muted);
-    font-size: 15px;
-}
-
-.notifier-bell-item.is-unread .notifier-bell-item-icon {
-    background: var(--notifier-primary);
-    color: #fff;
-}
-
-.notifier-bell-item.notifier-event-assigned       .notifier-bell-item-icon { background: var(--notifier-success); color: #fff; }
-.notifier-bell-item.notifier-event-commented      .notifier-bell-item-icon { background: var(--notifier-purple);  color: #fff; }
-.notifier-bell-item.notifier-event-status_changed .notifier-bell-item-icon { background: var(--notifier-warning); color: #fff; }
-.notifier-bell-item.notifier-event-solution       .notifier-bell-item-icon { background: var(--notifier-teal);    color: #fff; }
-.notifier-bell-item.notifier-event-task_added     .notifier-bell-item-icon { background: var(--notifier-info);    color: #000; }
 
 .notifier-bell-item-body {
     min-width: 0;
@@ -425,28 +549,104 @@
 
 .notifier-bell-item-meta {
     font-size: 11px;
+    /* No extra opacity here: --notifier-text-muted is already translucent
+       and stacking the two fades it out of legibility. */
     color: var(--notifier-text-muted);
-    opacity: .85;
-    margin-top: 3px;
+    margin-top: 2px;
 }
 
-.notifier-bell-item-toggle {
+.notifier-bell-item-actions {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    position: relative;
+}
+
+/* ====== Avatar ====== */
+
+.notifier-avatar {
+    position: relative;
+    flex: 0 0 auto;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: .02em;
+    /* Translucent hue over whatever surface the theme provides, with the
+       theme's own text colour on top — readable in light and dark alike
+       without having to detect which one is active. */
+    background: hsl(var(--notifier-avatar-hue, 210) 65% 55% / .22);
+    color: var(--notifier-text);
+}
+
+.notifier-avatar.is-system {
+    background: var(--notifier-surface-alt);
+    color: var(--notifier-text-muted);
+    font-size: 14px;
+    border: 1px solid var(--notifier-border);
+}
+
+.notifier-avatar-badge {
+    position: absolute;
+    right: -3px;
+    bottom: -3px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: #fff;
+    background: var(--notifier-text-muted);
+    box-shadow: 0 0 0 2px var(--notifier-surface);
+}
+
+.notifier-bell-item.is-unread .notifier-avatar-badge {
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--notifier-surface), var(--notifier-primary) 7%);
+}
+
+/* One palette drives the avatar badge, the sub-row icon and the
+   preferences list, so an event looks the same everywhere. */
+.notifier-event-badge-assigned       { background: var(--notifier-success); }
+.notifier-event-badge-created        { background: var(--notifier-primary); }
+.notifier-event-badge-commented      { background: var(--notifier-purple); }
+.notifier-event-badge-status_changed { background: var(--notifier-warning); }
+.notifier-event-badge-solution       { background: var(--notifier-teal); }
+.notifier-event-badge-task_added     { background: var(--notifier-info); color: #000; }
+.notifier-event-badge-updated        { background: var(--notifier-text-muted); }
+.notifier-event-badge-validation     { background: var(--notifier-warning); }
+.notifier-event-badge-mention        { background: var(--notifier-pink); }
+.notifier-event-badge-deadline       { background: var(--notifier-danger); }
+
+/* ====== Row buttons ====== */
+
+.notifier-bell-item-toggle,
+.notifier-bell-snooze,
+.notifier-bell-group-expand {
     flex: 0 0 auto;
     align-self: center;
     width: 30px;
     height: 30px;
     padding: 0;
-    margin-left: 6px;
-    border: 1px solid rgba(var(--notifier-primary-rgb), .3);
     border-radius: 50%;
-    background: var(--notifier-surface);
-    color: var(--notifier-primary);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     font-size: 12px;
-    transition: background .12s ease, color .12s ease, border-color .12s ease;
+    transition: background .12s ease, color .12s ease, border-color .12s ease, transform .15s ease;
+}
+
+.notifier-bell-item-toggle {
+    border: 1px solid rgba(var(--notifier-primary-rgb), .3);
+    background: var(--notifier-surface);
+    color: var(--notifier-primary);
 }
 
 .notifier-bell-item-toggle:hover,
@@ -457,15 +657,74 @@
     outline: 0;
 }
 
-.notifier-bell-item.is-read .notifier-bell-item-toggle {
+.notifier-bell-item.is-read .notifier-bell-item-toggle,
+.notifier-bell-sub-item.is-read .notifier-bell-item-toggle {
     border-color: var(--notifier-border);
     color: var(--notifier-text-muted);
 }
 
-.notifier-bell-item.is-read .notifier-bell-item-toggle:hover {
+.notifier-bell-item.is-read .notifier-bell-item-toggle:hover,
+.notifier-bell-sub-item.is-read .notifier-bell-item-toggle:hover {
     border-color: rgba(var(--notifier-primary-rgb), .3);
     color: var(--notifier-primary);
     background: var(--notifier-surface);
+}
+
+.notifier-bell-snooze,
+.notifier-bell-group-expand {
+    border: 0;
+    background: transparent;
+    color: var(--notifier-text-muted);
+}
+
+.notifier-bell-snooze:hover,
+.notifier-bell-snooze:focus-visible,
+.notifier-bell-group-expand:hover,
+.notifier-bell-group-expand:focus-visible {
+    background: rgba(var(--notifier-primary-rgb), .1);
+    color: var(--notifier-primary);
+    outline: 0;
+}
+
+.notifier-bell-group.is-expanded .notifier-bell-group-expand {
+    color: var(--notifier-primary);
+    transform: rotate(180deg);
+}
+
+/* ====== Snooze menu ====== */
+
+.notifier-snooze-menu {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 6px);
+    min-width: 190px;
+    padding: 5px;
+    background: var(--notifier-surface);
+    border: 1px solid var(--notifier-border);
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, .2);
+    z-index: 10;
+    animation: notifier-pop-in .12s ease-out;
+}
+
+.notifier-snooze-menu button {
+    display: block;
+    width: 100%;
+    padding: 8px 10px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--notifier-text);
+    font-size: 13px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.notifier-snooze-menu button:hover,
+.notifier-snooze-menu button:focus-visible {
+    background: rgba(var(--notifier-primary-rgb), .1);
+    color: var(--notifier-primary);
+    outline: 0;
 }
 
 /* ====== Grouped notifications ====== */
@@ -479,69 +738,35 @@
     border-bottom: 0;
 }
 
-/* The list-level border lives on the group <li>; strip it from the inner
-   header to avoid doubling. */
-.notifier-bell-group-header {
-    border-bottom: 0 !important;
-}
-
-.notifier-bell-group-expand {
-    flex: 0 0 auto;
-    align-self: center;
-    width: 28px;
-    height: 28px;
-    padding: 0;
-    margin-left: 4px;
-    border: 0;
-    border-radius: 50%;
-    background: transparent;
-    color: var(--notifier-text-muted);
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    transition: background .12s ease, color .12s ease, transform .15s ease;
-}
-
-.notifier-bell-group-expand:hover,
-.notifier-bell-group-expand:focus-visible {
-    background: rgba(var(--notifier-primary-rgb), .1);
-    color: var(--notifier-primary);
-    outline: 0;
-}
-
-.notifier-bell-group.is-expanded .notifier-bell-group-expand {
-    color: var(--notifier-primary);
-    transform: rotate(180deg);
-}
-
 .notifier-bell-group-meta-count {
     font-weight: 600;
     color: var(--notifier-primary);
     margin-left: 2px;
 }
 
+.notifier-bell-drawer {
+    background: var(--notifier-surface-alt);
+    border-top: 1px solid var(--notifier-border);
+}
+
 .notifier-bell-subs {
     list-style: none;
     margin: 0;
     padding: 0;
-    background: var(--notifier-surface-alt);
-    border-top: 1px solid var(--notifier-border);
 }
 
 .notifier-bell-sub-item {
     display: flex;
     gap: 10px;
-    padding: 10px 16px 10px 56px;  /* 56px aligns with the group icon column */
-    border-bottom: 1px solid var(--notifier-border);
+    padding: 10px 16px 10px 58px;  /* aligns with the avatar column */
+    border-top: 1px solid var(--notifier-border);
     cursor: pointer;
     transition: background-color .12s ease;
     background: transparent;
 }
 
-.notifier-bell-sub-item:last-child {
-    border-bottom: 0;
+.notifier-bell-sub-item:first-child {
+    border-top: 0;
 }
 
 .notifier-bell-sub-item:hover {
@@ -561,20 +786,12 @@
     width: 24px;
     height: 24px;
     border-radius: 50%;
-    background: var(--notifier-surface);
-    border: 1px solid var(--notifier-border);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--notifier-text-muted);
+    color: #fff;
     font-size: 11px;
 }
-
-.notifier-bell-sub-item.notifier-event-assigned       .notifier-bell-sub-icon { background: var(--notifier-success); border-color: var(--notifier-success); color: #fff; }
-.notifier-bell-sub-item.notifier-event-commented      .notifier-bell-sub-icon { background: var(--notifier-purple);  border-color: var(--notifier-purple);  color: #fff; }
-.notifier-bell-sub-item.notifier-event-status_changed .notifier-bell-sub-icon { background: var(--notifier-warning); border-color: var(--notifier-warning); color: #fff; }
-.notifier-bell-sub-item.notifier-event-solution       .notifier-bell-sub-icon { background: var(--notifier-teal);    border-color: var(--notifier-teal);    color: #fff; }
-.notifier-bell-sub-item.notifier-event-task_added     .notifier-bell-sub-icon { background: var(--notifier-info);    border-color: var(--notifier-info);    color: #000; }
 
 .notifier-bell-sub-body {
     min-width: 0;
@@ -596,11 +813,412 @@
     font-weight: 600;
 }
 
+/* ====== Quick actions ====== */
+
+.notifier-qa {
+    padding: 12px 16px 12px 58px;
+    border-top: 1px solid var(--notifier-border);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.notifier-qa.is-busy {
+    opacity: .6;
+    pointer-events: none;
+}
+
+.notifier-qa-label {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--notifier-text-muted);
+}
+
+.notifier-qa-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.notifier-qa-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border: 1px solid var(--notifier-border);
+    border-radius: 8px;
+    background: var(--notifier-surface);
+    color: var(--notifier-text);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color .12s ease, background .12s ease, color .12s ease;
+}
+
+.notifier-qa-btn:hover,
+.notifier-qa-btn:focus-visible {
+    border-color: var(--notifier-primary);
+    color: var(--notifier-primary);
+    background: rgba(var(--notifier-primary-rgb), .06);
+    outline: 0;
+}
+
+.notifier-qa-status {
+    flex: 1;
+    min-width: 0;
+}
+
+/* Same reasoning as the search box: out-specify the theme's own control
+   styling so these read as one consistent set of fields. */
+.notifier-qa .notifier-qa-select,
+.notifier-qa .notifier-qa-input {
+    width: 100%;
+    margin: 0;
+    padding: 6px 10px;
+    height: auto;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid var(--notifier-border);
+    border-radius: 8px;
+    box-shadow: none;
+    background: var(--notifier-surface);
+    color: var(--notifier-text);
+    font-size: 12px;
+    font-family: inherit;
+    line-height: 1.4;
+}
+
+.notifier-qa .notifier-qa-select:focus,
+.notifier-qa .notifier-qa-input:focus {
+    outline: 0;
+    border-color: var(--notifier-primary);
+    box-shadow: 0 0 0 3px rgba(var(--notifier-primary-rgb), .16);
+}
+
+.notifier-qa .notifier-qa-input::placeholder {
+    color: var(--notifier-text-muted);
+    opacity: 1;
+}
+
+.notifier-qa-input {
+    flex: 1;
+    min-width: 0;
+}
+
+.notifier-qa-send {
+    background: var(--notifier-primary);
+    border-color: var(--notifier-primary);
+    color: #fff;
+}
+
+.notifier-qa-send:hover,
+.notifier-qa-send:focus-visible {
+    background: var(--notifier-primary-dark);
+    border-color: var(--notifier-primary-dark);
+    color: #fff;
+}
+
+.notifier-qa-feedback {
+    font-size: 12px;
+    color: var(--notifier-success);
+    font-weight: 600;
+}
+
+.notifier-qa-feedback.is-error {
+    color: var(--notifier-danger);
+}
+
+.notifier-qa-feedback[hidden] {
+    display: none;
+}
+
+/* ====== Notes ====== */
+
+.notifier-notes {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    flex: 1;
+}
+
+.notifier-notes[hidden] {
+    display: none;
+}
+
+.notifier-notes-add {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--notifier-border);
+    background: var(--notifier-surface);
+}
+
+/* Single bordered element per field, for the same reason as the search
+   box: a wrapper border plus a themed input reads as a box in a box. */
+.notifier-notes-add .notifier-notes-input,
+.notifier-notes-add .notifier-notes-when {
+    display: block;
+    width: 100%;
+    margin: 0;
+    padding: 8px 11px;
+    height: auto;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid var(--notifier-border);
+    border-radius: 9px;
+    outline: 0;
+    box-shadow: none;
+    background: var(--notifier-surface-alt);
+    color: var(--notifier-text);
+    font-size: 13px;
+    font-family: inherit;
+    line-height: 1.4;
+}
+
+.notifier-notes-add .notifier-notes-input:focus,
+.notifier-notes-add .notifier-notes-when:focus {
+    outline: 0;
+    border-color: var(--notifier-primary);
+    box-shadow: 0 0 0 3px rgba(var(--notifier-primary-rgb), .16);
+}
+
+.notifier-notes-input::placeholder {
+    color: var(--notifier-text-muted);
+    opacity: 1;
+}
+
+.notifier-notes-add-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.notifier-notes-add .notifier-notes-when {
+    flex: 1 1 150px;
+    width: auto;
+    min-width: 0;
+}
+
+.notifier-notes-quick {
+    flex: 0 0 auto;
+    padding: 6px 10px;
+    border: 1px solid var(--notifier-border);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--notifier-text-muted);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.notifier-notes-quick:hover,
+.notifier-notes-quick:focus-visible {
+    border-color: var(--notifier-primary);
+    color: var(--notifier-primary);
+    background: rgba(var(--notifier-primary-rgb), .06);
+    outline: 0;
+}
+
+.notifier-notes-save {
+    flex: 0 0 auto;
+    margin-left: auto;
+    padding: 7px 16px;
+}
+
+.notifier-notes-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow-y: auto;
+    flex: 1;
+    min-height: 0;
+}
+
+.notifier-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--notifier-border);
+    background: var(--notifier-surface);
+}
+
+.notifier-note:last-child {
+    border-bottom: 0;
+}
+
+.notifier-note.is-overdue {
+    background: color-mix(in srgb, var(--notifier-danger), transparent 92%);
+    box-shadow: inset 3px 0 0 0 var(--notifier-danger);
+}
+
+.notifier-note.is-done {
+    background: var(--notifier-surface-alt);
+}
+
+.notifier-note-check {
+    flex: 0 0 auto;
+    margin-top: 1px;
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    border: 1.5px solid var(--notifier-border);
+    border-radius: 6px;
+    background: transparent;
+    color: transparent;
+    font-size: 10px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .12s ease, border-color .12s ease, color .12s ease;
+}
+
+.notifier-note-check:hover,
+.notifier-note-check:focus-visible {
+    border-color: var(--notifier-primary);
+    color: rgba(var(--notifier-primary-rgb), .5);
+    outline: 0;
+}
+
+.notifier-note.is-done .notifier-note-check {
+    background: var(--notifier-success);
+    border-color: var(--notifier-success);
+    color: #fff;
+}
+
+.notifier-note-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.notifier-note-text {
+    font-size: 13px;
+    color: var(--notifier-text);
+    overflow-wrap: anywhere;
+}
+
+.notifier-note.is-done .notifier-note-text {
+    text-decoration: line-through;
+    color: var(--notifier-text-muted);
+}
+
+.notifier-note-meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 11px;
+    color: var(--notifier-text-muted);
+}
+
+.notifier-note-when {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.notifier-note.is-overdue .notifier-note-when {
+    color: var(--notifier-danger);
+    font-weight: 700;
+}
+
+.notifier-note-link {
+    color: var(--notifier-primary);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.notifier-note-link:hover {
+    text-decoration: underline;
+}
+
+.notifier-note-delete {
+    flex: 0 0 auto;
+    align-self: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--notifier-text-muted);
+    cursor: pointer;
+    font-size: 11px;
+    opacity: 0;
+    transition: opacity .12s ease, background .12s ease, color .12s ease;
+}
+
+.notifier-note:hover .notifier-note-delete,
+.notifier-note-delete:focus-visible {
+    opacity: 1;
+}
+
+.notifier-note-delete:hover,
+.notifier-note-delete:focus-visible {
+    background: color-mix(in srgb, var(--notifier-danger), transparent 88%);
+    color: var(--notifier-danger);
+    outline: 0;
+}
+
+.notifier-notes-empty {
+    padding: 36px 20px 44px;
+    text-align: center;
+}
+
+.notifier-notes-empty[hidden] {
+    display: none;
+}
+
+.notifier-bell-tab-count {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 17px;
+    height: 16px;
+    margin-left: 3px;
+    padding: 0 5px;
+    border-radius: 8px;
+    background: var(--notifier-border);
+    color: var(--notifier-text);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.notifier-bell-tab-count.is-due {
+    background: var(--notifier-danger);
+    color: #fff;
+}
+
+.notifier-bell-tab-count[hidden] {
+    display: none;
+}
+
+.notifier-bell-search[hidden],
+.notifier-bell-markall[hidden] {
+    display: none;
+}
+
+/* ====== Empty / load more ====== */
+
 .notifier-bell-empty {
-    padding: 48px 20px 60px;
+    padding: 44px 20px 56px;
     text-align: center;
     color: var(--notifier-text-muted);
     font-size: 13px;
+}
+
+.notifier-bell-empty[hidden] {
+    display: none;
 }
 
 .notifier-bell-empty-art {
@@ -629,6 +1247,36 @@
     font-size: 13px;
     color: var(--notifier-text-muted);
 }
+
+.notifier-bell-loadmore {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 11px;
+    border: 0;
+    border-top: 1px solid var(--notifier-border);
+    background: var(--notifier-surface);
+    color: var(--notifier-primary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.notifier-bell-loadmore:hover:not(:disabled),
+.notifier-bell-loadmore:focus-visible:not(:disabled) {
+    background: rgba(var(--notifier-primary-rgb), .08);
+    outline: 0;
+}
+
+.notifier-bell-loadmore:disabled {
+    color: var(--notifier-text-muted);
+    cursor: default;
+}
+
+.notifier-bell-loadmore[hidden] {
+    display: none;
+}
+
+/* ====== Footer ====== */
 
 .notifier-bell-panel-footer {
     display: flex;
@@ -664,16 +1312,6 @@
     outline: 0;
 }
 
-.theme-dark .notifier-bell-btn,
-.is-dark-header .notifier-bell-btn {
-    color: #fff;
-}
-
-.theme-dark .notifier-bell-btn:hover,
-.is-dark-header .notifier-bell-btn:hover {
-    background: rgba(255, 255, 255, .15);
-}
-
 /* ====== Preferences modal ====== */
 
 .notifier-modal-overlay {
@@ -700,9 +1338,9 @@
 .notifier-modal {
     background: var(--notifier-surface);
     color: var(--notifier-text);
-    border-radius: 14px;
+    border-radius: 16px;
     box-shadow: 0 22px 60px rgba(0, 0, 0, .35);
-    width: 520px;
+    width: 540px;
     max-width: 100%;
     max-height: 90vh;
     display: flex;
@@ -748,9 +1386,11 @@
     justify-content: center;
 }
 
-.notifier-modal-close:hover {
+.notifier-modal-close:hover,
+.notifier-modal-close:focus-visible {
     background: rgba(0, 0, 0, .08);
     color: var(--notifier-text);
+    outline: 0;
 }
 
 .notifier-modal-body {
@@ -766,6 +1406,25 @@
     line-height: 1.5;
 }
 
+.notifier-pref-heading {
+    margin: 22px 0 8px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--notifier-text-muted);
+}
+
+.notifier-pref-heading:first-of-type {
+    margin-top: 0;
+}
+
+.notifier-pref-sub {
+    margin: 0 0 10px;
+    font-size: 12px;
+    color: var(--notifier-text-muted);
+}
+
 .notifier-pref-table {
     width: 100%;
     border-collapse: collapse;
@@ -774,7 +1433,7 @@
 
 .notifier-pref-table thead th {
     text-align: center;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: .04em;
@@ -789,8 +1448,9 @@
 
 .notifier-pref-table tbody th {
     text-align: left;
-    padding: 14px 10px;
+    padding: 12px 10px;
     font-weight: 600;
+    font-size: 13px;
     color: var(--notifier-text);
     border-bottom: 1px solid var(--notifier-border);
     width: 50%;
@@ -798,7 +1458,7 @@
 
 .notifier-pref-table tbody td {
     text-align: center;
-    padding: 14px 10px;
+    padding: 12px 10px;
     border-bottom: 1px solid var(--notifier-border);
     vertical-align: middle;
 }
@@ -808,11 +1468,61 @@
     border-bottom: 0;
 }
 
+.notifier-pref-events {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.notifier-pref-event {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 2px;
+    border-bottom: 1px solid var(--notifier-border);
+}
+
+.notifier-pref-event:last-child {
+    border-bottom: 0;
+}
+
+.notifier-pref-event-icon {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    color: #fff;
+    background: var(--notifier-text-muted);
+}
+
+.notifier-pref-event-label {
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--notifier-text);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.notifier-pref-event-label small {
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--notifier-text-muted);
+    line-height: 1.4;
+}
+
 .notifier-switch {
     position: relative;
     display: inline-block;
     width: 42px;
     height: 24px;
+    flex: 0 0 auto;
     cursor: pointer;
     vertical-align: middle;
 }
@@ -857,11 +1567,10 @@
     box-shadow: 0 0 0 3px rgba(var(--notifier-primary-rgb), .25);
 }
 
-.notifier-modal-toast {
+.notifier-modal-toast,
+.notifier-modal-warning {
     margin-top: 14px;
     padding: 10px 14px;
-    background: rgba(var(--notifier-primary-rgb), .08);
-    color: var(--notifier-primary);
     border-radius: 8px;
     font-size: 13px;
     display: flex;
@@ -869,7 +1578,18 @@
     gap: 8px;
 }
 
-.notifier-modal-toast[hidden] {
+.notifier-modal-toast {
+    background: rgba(var(--notifier-primary-rgb), .08);
+    color: var(--notifier-primary);
+}
+
+.notifier-modal-warning {
+    background: color-mix(in srgb, var(--notifier-warning), transparent 88%);
+    color: var(--notifier-warning);
+}
+
+.notifier-modal-toast[hidden],
+.notifier-modal-warning[hidden] {
     display: none;
 }
 
@@ -895,8 +1615,10 @@
     transition: background .12s ease, border-color .12s ease, color .12s ease;
 }
 
-.notifier-btn:hover {
+.notifier-btn:hover,
+.notifier-btn:focus-visible {
     background: var(--notifier-row-hover);
+    outline: 0;
 }
 
 .notifier-btn-primary {
@@ -905,7 +1627,8 @@
     color: #fff;
 }
 
-.notifier-btn-primary:hover {
+.notifier-btn-primary:hover,
+.notifier-btn-primary:focus-visible {
     background: var(--notifier-primary-dark);
     border-color: var(--notifier-primary-dark);
     color: #fff;
@@ -917,11 +1640,85 @@
     cursor: not-allowed;
 }
 
+/* ====== Admin config page ====== */
+
+.notifier-config-table td,
+.notifier-config-table th {
+    vertical-align: middle;
+}
+
+.notifier-config-hint {
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--tblr-secondary-color, #6c757d);
+    margin-top: 3px;
+    max-width: 60ch;
+}
+
+/* ====== Dark theme ====== */
+
+.theme-dark .notifier-bell-btn,
+.is-dark-header .notifier-bell-btn {
+    color: #fff;
+}
+
+.theme-dark .notifier-bell-btn:hover,
+.is-dark-header .notifier-bell-btn:hover {
+    background: rgba(255, 255, 255, .15);
+}
+
+.theme-dark .notifier-bell-minimize:hover,
+.theme-dark .notifier-modal-close:hover,
+[data-bs-theme="dark"] .notifier-bell-minimize:hover,
+[data-bs-theme="dark"] .notifier-modal-close:hover {
+    background: rgba(255, 255, 255, .1);
+}
+
+/* ====== Responsive ====== */
+
 @media (max-width: 600px) {
+    .notifier-bell-wrap.notifier-bell-floating {
+        bottom: 14px;
+        right: 14px;
+    }
+    .notifier-bell-wrap.notifier-bell-floating .notifier-bell-panel {
+        width: calc(100vw - 28px);
+        max-width: 460px;
+        max-height: 75vh;
+        right: 0;
+    }
     .notifier-modal {
         width: 100%;
     }
     .notifier-pref-table tbody th {
         font-size: 13px;
+    }
+    .notifier-qa,
+    .notifier-bell-sub-item {
+        padding-left: 16px;
+    }
+    .notifier-qa-row {
+        flex-wrap: wrap;
+    }
+}
+
+/* ====== Reduced motion ====== */
+
+@media (prefers-reduced-motion: reduce) {
+    .notifier-bell-wrap *,
+    .notifier-modal-overlay * {
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .001ms !important;
+    }
+
+    .notifier-bell-panel,
+    .notifier-modal,
+    .notifier-snooze-menu {
+        animation: none;
+    }
+
+    .notifier-bell-wrap.has-arrival .notifier-bell-btn {
+        animation: none;
     }
 }
