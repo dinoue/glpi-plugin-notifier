@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: notifier 1.0.2\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-15 00:00+0000\n"
+"Report-Msgid-Bugs-To: https://github.com/dvbnl/glpi-plugin-notifier/issues\n"
+"POT-Creation-Date: 2026-07-31 16:23+0200\n"
 "PO-Revision-Date: 2026-04-15 00:00+0000\n"
 "Last-Translator: DVBNL\n"
 "Language-Team: Français\n"
@@ -16,130 +16,556 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
+#: setup.php:50 front/config.form.php:27
 msgid "Notifier - In-app notifications"
 msgstr "Notifier - Notifications in-app"
 
+#: front/config.form.php:22
+msgid "Settings saved"
+msgstr "Paramètres enregistrés"
+
+#: src/Config.php:128
 msgid "Notifier"
 msgstr "Notifier"
 
-msgid "Notifications"
-msgstr "Notifications"
+#: src/Config.php:145
+msgid "Notification bell settings"
+msgstr "Paramètres de la cloche de notifications"
 
+#: src/Config.php:150
+msgid "General"
+msgstr "Général"
+
+#: src/Config.php:154
+msgid "Polling interval (seconds)"
+msgstr "Intervalle d'interrogation (secondes)"
+
+#: src/Config.php:157
+msgid ""
+"How often an open page checks for new notifications. Hidden tabs pause "
+"automatically."
+msgstr ""
+"Fréquence à laquelle une page ouverte vérifie les nouvelles notifications. "
+"Les onglets masqués se mettent en pause automatiquement."
+
+#: src/Config.php:162
+msgid "Notifications per page"
+msgstr "Notifications par page"
+
+#: src/Config.php:165
+msgid "Size of one batch in the panel. Users can load more."
+msgstr ""
+"Nombre d'éléments chargés à la fois dans le panneau. Les utilisateurs "
+"peuvent en charger plus."
+
+#: src/Config.php:170
+msgid "Retention (days)"
+msgstr "Rétention (jours)"
+
+#: src/Config.php:173
+msgid ""
+"Read notifications older than this are purged by the NotifierCleanup cron "
+"task. 0 keeps everything."
+msgstr ""
+"Les notifications lues plus anciennes que cette valeur sont purgées par la "
+"tâche automatique NotifierCleanup. 0 conserve tout."
+
+#: src/Config.php:178
+msgid "Show the bell in the self-service interface"
+msgstr "Afficher la cloche dans l'interface simplifiée"
+
+#: src/Config.php:180
+msgid ""
+"On by default. Turn this off to limit the bell to the central (technician) "
+"interface."
+msgstr ""
+"Activé par défaut. Désactivez cette option pour limiter la cloche à "
+"l’interface centrale (technicien)."
+
+#: src/Config.php:184
+msgid "Features"
+msgstr "Fonctionnalités"
+
+#: src/Config.php:188
+msgid "Enable @-mentions"
+msgstr "Activer les mentions @"
+
+#: src/Config.php:190
+msgid ""
+"Naming a user in a followup, task or solution notifies them even when they "
+"are not an actor on the item."
+msgstr ""
+"Nommer un utilisateur dans un suivi, une tâche ou une solution le notifie "
+"même s'il n'est pas acteur de l'élément."
+
+#: src/Config.php:195
+msgid "Enable quick actions"
+msgstr "Activer les actions rapides"
+
+#: src/Config.php:197
+msgid ""
+"Take the item, change its status or post a followup straight from the bell. "
+"Every action is rights-checked."
+msgstr ""
+"Prendre l'élément, changer son statut ou publier un suivi directement depuis "
+"la cloche. Chaque action vérifie les droits."
+
+#: src/Config.php:202
+msgid "Enable snooze"
+msgstr "Activer le report"
+
+#: src/Config.php:204
+msgid "Lets users hide a notification until later instead of marking it read."
+msgstr ""
+"Permet aux utilisateurs de masquer une notification jusqu'à plus tard au "
+"lieu de la marquer comme lue."
+
+#: src/Config.php:209
+msgid "Enable deadline notifications"
+msgstr "Activer les notifications d'échéance"
+
+#: src/Config.php:211
+msgid ""
+"The NotifierDeadline cron task warns assignees before and after the "
+"resolution deadline is reached."
+msgstr ""
+"La tâche automatique NotifierDeadline avertit les attributaires avant et "
+"après l'échéance de résolution."
+
+#: src/Config.php:216
+msgid "Deadline warning lead time (minutes)"
+msgstr "Délai d'alerte avant échéance (minutes)"
+
+#: src/Config.php:219
+msgid "How long before time to resolve the first warning fires."
+msgstr ""
+"Combien de temps avant le temps de résolution la première alerte est "
+"déclenchée."
+
+#: src/Config.php:223
+msgid "Event types"
+msgstr "Types d'événement"
+
+#: src/Config.php:225
+msgid ""
+"Turn an event off here and it is never recorded for anyone. Users can "
+"additionally opt out per event in their own preferences."
+msgstr ""
+"Désactivez un événement ici et il n'est plus enregistré pour personne. Les "
+"utilisateurs peuvent en plus se désabonner par événement dans leurs "
+"préférences."
+
+#: src/Config.php:239
+msgctxt "button"
+msgid "Save"
+msgstr "Enregistrer"
+
+#: src/Notification.php:49
 msgid "Notification"
 msgid_plural "Notifications"
 msgstr[0] "Notification"
 msgstr[1] "Notifications"
 
-msgid "Mark all as read"
-msgstr "Tout marquer comme lu"
+#: src/Notification.php:77
+msgid "Assignment"
+msgstr "Attribution"
 
-msgid "Mark as read"
-msgstr "Marquer comme lu"
+#: src/Notification.php:78
+msgid "Creation"
+msgstr "Création"
 
-msgid "Mark as unread"
-msgstr "Marquer comme non lu"
-
-msgid "No notifications"
-msgstr "Aucune notification"
-
-msgid "Minimize"
-msgstr "Réduire"
-
-msgid "Expand notifications"
-msgstr "Afficher les notifications"
-
-msgid "New item concerning you"
-msgstr "Nouvel élément vous concernant"
-
-msgid "Status changed"
-msgstr "Statut modifié"
-
-msgid "Item updated"
-msgstr "Élément mis à jour"
-
-msgid "New project task concerning you"
-msgstr "Nouvelle tâche de projet vous concernant"
-
-msgid "Project task updated"
-msgstr "Tâche de projet mise à jour"
-
+#: src/Notification.php:79 src/Notification.php:442
 msgid "New comment"
 msgstr "Nouveau commentaire"
 
+#: src/Notification.php:80 src/Notification.php:489 ajax/boot.php:117
 msgid "New task"
 msgstr "Nouvelle tâche"
 
+#: src/Notification.php:81 src/Notification.php:514
 msgid "Solution proposed"
 msgstr "Solution proposée"
 
-msgid "You have been assigned"
-msgstr "Vous avez été attribué"
+#: src/Notification.php:82 src/Notification.php:369 src/Notification.php:411
+msgid "Status changed"
+msgstr "Statut modifié"
 
-msgid "Your group has been assigned"
-msgstr "Votre groupe a été attribué"
+#: src/Notification.php:83 src/Notification.php:372
+msgid "Item updated"
+msgstr "Élément mis à jour"
 
-msgid "You have been added to a project task"
-msgstr "Vous avez été ajouté à une tâche de projet"
+#: src/Notification.php:84
+msgid "Approval"
+msgstr "Validation"
 
+#: src/Notification.php:85
+msgid "Mention"
+msgstr "Mention"
+
+#: src/Notification.php:86
+msgid "Deadline"
+msgstr "Échéance"
+
+#: src/Notification.php:362
+msgid "New item concerning you"
+msgstr "Nouvel élément vous concernant"
+
+#: src/Notification.php:403
+msgid "New project task concerning you"
+msgstr "Nouvelle tâche de projet vous concernant"
+
+#: src/Notification.php:414
+msgid "Project task updated"
+msgstr "Tâche de projet mise à jour"
+
+#: src/Notification.php:577
 msgid "Approval requested"
 msgstr "Approbation demandée"
 
+#: src/Notification.php:594
 msgid "Approval status changed"
 msgstr "Statut d'approbation modifié"
 
+#: src/Notification.php:652
+msgid "You have been assigned"
+msgstr "Vous avez été attribué"
+
+#: src/Notification.php:688
+msgid "Your group has been assigned"
+msgstr "Votre groupe a été attribué"
+
+#: src/Notification.php:727
+msgid "You have been added to a project task"
+msgstr "Vous avez été ajouté à une tâche de projet"
+
+#: src/Notification.php:764
+msgid "You were mentioned"
+msgstr "Vous avez été mentionné"
+
+#: src/Notification.php:1496
+msgid "Purge old in-app notifications"
+msgstr "Purger les anciennes notifications in-app"
+
+#: src/Notification.php:1498
+msgid "Notify assignees about approaching resolution deadlines"
+msgstr "Avertir les attributaires des échéances de résolution proches"
+
+#: src/Notification.php:1633
+msgid "Resolution deadline passed"
+msgstr "Échéance de résolution dépassée"
+
+#: src/Notification.php:1634
+msgid "Resolution deadline approaching"
+msgstr "Échéance de résolution proche"
+
+#: ajax/boot.php:49
+msgid "Notifications"
+msgstr "Notifications"
+
+#: ajax/boot.php:50
+msgid "Mark all as read"
+msgstr "Tout marquer comme lu"
+
+#: ajax/boot.php:51
+msgid "Mark as read"
+msgstr "Marquer comme lu"
+
+#: ajax/boot.php:52
+msgid "Mark as unread"
+msgstr "Marquer comme non lu"
+
+#: ajax/boot.php:53
+msgid "No notifications"
+msgstr "Aucune notification"
+
+#: ajax/boot.php:54
 msgid "You're all caught up."
 msgstr "Vous êtes à jour."
 
+#: ajax/boot.php:55
+msgid "Nothing matches your search"
+msgstr "Aucun résultat pour votre recherche"
+
+#: ajax/boot.php:56
+msgid "Try a different word, or clear the search box."
+msgstr "Essayez un autre mot ou videz le champ de recherche."
+
+#: ajax/boot.php:57
+msgid "Minimize"
+msgstr "Réduire"
+
+#: ajax/boot.php:58
+msgid "Expand notifications"
+msgstr "Afficher les notifications"
+
+#: ajax/boot.php:59
 msgid "All"
 msgstr "Toutes"
 
+#: ajax/boot.php:60
 msgid "Unread"
 msgstr "Non lues"
 
+#: ajax/boot.php:61
 msgid "Settings"
 msgstr "Paramètres"
 
+#: ajax/boot.php:62
 msgid "Notification preferences"
 msgstr "Préférences de notification"
 
-msgid "Choose which updates you want to receive. Direct updates are about items assigned to you; group updates are about items assigned to one of your groups."
-msgstr "Choisissez les mises à jour que vous souhaitez recevoir. Les mises à jour directes concernent les éléments qui vous sont attribués ; les mises à jour de groupe concernent les éléments attribués à l'un de vos groupes."
+#: ajax/boot.php:63
+msgid ""
+"Choose which updates you want to receive. Direct updates are about items "
+"assigned to you; group updates are about items assigned to one of your "
+"groups."
+msgstr ""
+"Choisissez les mises à jour que vous souhaitez recevoir. Les mises à jour "
+"directes concernent les éléments qui vous sont attribués ; les mises à jour "
+"de groupe concernent les éléments attribués à l'un de vos groupes."
 
+#: ajax/boot.php:64
 msgid "Assigned to me"
 msgstr "Attribué à moi"
 
+#: ajax/boot.php:65
 msgid "Assigned to my group"
 msgstr "Attribué à mon groupe"
 
+#: ajax/boot.php:66
 msgid "Tickets"
 msgstr "Tickets"
 
+#: ajax/boot.php:67
 msgid "Changes"
 msgstr "Changements"
 
+#: ajax/boot.php:68
 msgid "Problems"
 msgstr "Problèmes"
 
+#: ajax/boot.php:69
 msgid "Project tasks"
 msgstr "Tâches de projet"
 
+#: ajax/boot.php:70
 msgid "Save"
 msgstr "Enregistrer"
 
+#: ajax/boot.php:71
 msgid "Cancel"
 msgstr "Annuler"
 
+#: ajax/boot.php:72
 msgid "Preferences saved"
 msgstr "Préférences enregistrées"
 
+#: ajax/boot.php:73
 msgid "Close"
 msgstr "Fermer"
 
+#: ajax/boot.php:74
 msgid "{n} updates"
 msgstr "{n} mises à jour"
 
+#: ajax/boot.php:75
 msgid "Show all updates"
 msgstr "Afficher toutes les mises à jour"
 
+#: ajax/boot.php:76
 msgid "Hide updates"
 msgstr "Masquer les mises à jour"
+
+#: ajax/boot.php:78
+msgid "Search"
+msgstr "Rechercher"
+
+#: ajax/boot.php:79
+msgid "Search notifications"
+msgstr "Rechercher dans les notifications"
+
+#: ajax/boot.php:80
+msgid "Clear search"
+msgstr "Effacer la recherche"
+
+#: ajax/boot.php:81
+msgid "Load more"
+msgstr "Charger plus"
+
+#: ajax/boot.php:82
+msgid "Loading"
+msgstr "Chargement"
+
+#: ajax/boot.php:83
+msgid "Refresh"
+msgstr "Actualiser"
+
+#: ajax/boot.php:84
+msgid "Reconnecting"
+msgstr "Reconnexion"
+
+#: ajax/boot.php:86
+msgid "Snooze"
+msgstr "Reporter"
+
+#: ajax/boot.php:87
+msgid "For 1 hour"
+msgstr "Pendant 1 heure"
+
+#: ajax/boot.php:88
+msgid "For 3 hours"
+msgstr "Pendant 3 heures"
+
+#: ajax/boot.php:89
+msgid "Until tomorrow morning"
+msgstr "Jusqu'à demain matin"
+
+#: ajax/boot.php:90
+msgid "Snoozed"
+msgstr "Reporté"
+
+#: ajax/boot.php:92
+msgid "Quick actions"
+msgstr "Actions rapides"
+
+#: ajax/boot.php:93
+msgid "Assign to me"
+msgstr "M'attribuer"
+
+#: ajax/boot.php:94
+msgid "Change status"
+msgstr "Changer le statut"
+
+#: ajax/boot.php:95
+msgid "Reply"
+msgstr "Répondre"
+
+#: ajax/boot.php:96
+msgid "Write a short reply…"
+msgstr "Écrivez une courte réponse…"
+
+#: ajax/boot.php:97
+msgid "Send"
+msgstr "Envoyer"
+
+#: ajax/boot.php:98
+msgid "Done"
+msgstr "Terminé"
+
+#: ajax/boot.php:99
+msgid "That did not work"
+msgstr "Cela n'a pas fonctionné"
+
+#: ajax/boot.php:100
+msgid "You are not allowed to do that"
+msgstr "Vous n'avez pas le droit de faire cela"
+
+#: ajax/boot.php:102
+msgid "Which items"
+msgstr "Quels éléments"
+
+#: ajax/boot.php:103
+msgid "Which events"
+msgstr "Quels événements"
+
+#: ajax/boot.php:104
+msgid "How to be alerted"
+msgstr "Comment être alerté"
+
+#: ajax/boot.php:105
+msgid "Turn off the event types you never want to see in the bell."
+msgstr ""
+"Désactivez les types d'événement que vous ne voulez jamais voir dans la "
+"cloche."
+
+#: ajax/boot.php:106
+msgid "Desktop notifications"
+msgstr "Notifications du bureau"
+
+#: ajax/boot.php:107
+msgid ""
+"Show a system notification when something new arrives. Your browser will ask "
+"for permission."
+msgstr ""
+"Afficher une notification système à l'arrivée d'un nouvel élément. Votre "
+"navigateur demandera l'autorisation."
+
+#: ajax/boot.php:108
+msgid "Play a sound"
+msgstr "Jouer un son"
+
+#: ajax/boot.php:109
+msgid "A short chime when a new notification arrives."
+msgstr "Un court signal sonore à l'arrivée d'une nouvelle notification."
+
+#: ajax/boot.php:110
+msgid "Your browser blocked notifications for this site."
+msgstr "Votre navigateur a bloqué les notifications pour ce site."
+
+#: ajax/boot.php:112
+msgid "New notification"
+msgstr "Nouvelle notification"
+
+#: ajax/boot.php:113
+msgid "{name} and {n} others"
+msgstr "{name} et {n} autres"
+
+#: ajax/boot.php:115
+msgid "Reminders"
+msgstr "Rappels"
+
+#: ajax/boot.php:116
+msgid "What still needs doing?"
+msgstr "Que reste-t-il à faire ?"
+
+#: ajax/boot.php:118
+msgid "Remind me at"
+msgstr "Me rappeler à"
+
+#: ajax/boot.php:119
+msgid "In 1 hour"
+msgstr "Dans 1 heure"
+
+#: ajax/boot.php:120
+msgid "Tomorrow 9:00"
+msgstr "Demain 9:00"
+
+#: ajax/boot.php:121
+msgid "Add"
+msgstr "Ajouter"
+
+#: ajax/boot.php:122
+msgid "Nothing on your list"
+msgstr "Rien sur votre liste"
+
+#: ajax/boot.php:123
+msgid "Jot something down and it will find you here."
+msgstr "Notez quelque chose, vous le retrouverez ici."
+
+#: ajax/boot.php:124
+msgid "Mark as done"
+msgstr "Marquer comme fait"
+
+#: ajax/boot.php:125
+msgid "Not done yet"
+msgstr "Pas encore fait"
+
+#: ajax/boot.php:126
+msgid "Delete"
+msgstr "Supprimer"
+
+#: ajax/boot.php:127
+msgid "Due"
+msgstr "Échu"
+
+#: ajax/boot.php:128
+msgid "Reminder"
+msgstr "Rappel"
+
+#~ msgid "Tasks"
+#~ msgstr "Tâches"
+
+#~ msgid "Off by default: only the central (technician) interface gets a bell."
+#~ msgstr ""
+#~ "Désactivé par défaut : seule l'interface centrale (technicien) reçoit une "
+#~ "cloche."

@@ -1,22 +1,23 @@
 <?php
 
-// GET (not POST): GLPI 11's Symfony CheckCsrfListener auto-runs on POST
-// routes and rejects our minted tokens. Session + ownership scope means
-// CSRF risk is nil for this self-only mutation.
+// Mutating: see markread.php.
+
+use GlpiPlugin\Notifier\Endpoint;
+use GlpiPlugin\Notifier\Notification;
 
 if (!defined('GLPI_ROOT')) {
     include(dirname(__DIR__, 3) . '/inc/includes.php');
 }
 
-header('Content-Type: application/json');
+Endpoint::begin();
+Endpoint::requireToken();
 
-Session::checkLoginUser();
+$users_id = Endpoint::currentUser();
 
-$users_id = (int)Session::getLoginUserID();
+$ok = Notification::markAllRead($users_id);
 
-$ok = GlpiPlugin\Notifier\Notification::markAllRead($users_id);
-
-echo json_encode([
-    'success' => $ok,
-    'unread'  => GlpiPlugin\Notifier\Notification::countUnread($users_id),
+Endpoint::json([
+    'success'       => $ok,
+    'unread'        => Notification::countUnread($users_id),
+    'unread_groups' => Notification::countUnreadGroups($users_id),
 ]);

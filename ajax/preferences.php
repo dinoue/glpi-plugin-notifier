@@ -1,37 +1,30 @@
 <?php
 
-// GET ?save=1 → upsert (CSRF-token required); plain GET → returns prefs.
-// GET-for-mutation matches mark*.php — sidesteps GLPI 11's Symfony
-// CheckCsrfListener which auto-runs on POST and rejects minted tokens.
-// Saves still require Session::validateCSRF so a remote page can't flip
-// a user's preferences silently via <img src=…>.
+// ?save=1 upserts and needs the header token; plain GET just reads.
+
+use GlpiPlugin\Notifier\Endpoint;
+use GlpiPlugin\Notifier\Notification;
 
 if (!defined('GLPI_ROOT')) {
     include(dirname(__DIR__, 3) . '/inc/includes.php');
 }
 
-header('Content-Type: application/json');
+Endpoint::begin();
 
-Session::checkLoginUser();
-
-$users_id = (int)Session::getLoginUserID();
+$users_id = Endpoint::currentUser();
 
 if (!empty($_GET['save'])) {
-    if (!Session::validateCSRF($_GET)) {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'error' => 'invalid_csrf']);
-        return;
-    }
+    Endpoint::requireToken();
 
-    GlpiPlugin\Notifier\Notification::savePreferences($users_id, $_GET);
+    Notification::savePreferences($users_id, $_GET);
 
-    echo json_encode([
+    Endpoint::json([
         'success'     => true,
-        'preferences' => GlpiPlugin\Notifier\Notification::getPreferences($users_id),
+        'preferences' => Notification::getPreferences($users_id),
     ]);
     return;
 }
 
-echo json_encode([
-    'preferences' => GlpiPlugin\Notifier\Notification::getPreferences($users_id),
+Endpoint::json([
+    'preferences' => Notification::getPreferences($users_id),
 ]);
