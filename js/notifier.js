@@ -865,10 +865,16 @@
                 + '<i class="fas ' + eventIcon(item.event) + '"></i>' + icon + '</div>';
         }
 
+        // Photo on top of the initials: if it 404s the initials show through.
+        var img = item.actor_avatar
+            ? '<img class="notifier-avatar-img" src="' + escapeHtml(item.actor_avatar)
+                + '" alt="" loading="lazy" onerror="this.remove()">'
+            : '';
+
         return '<div class="notifier-avatar" aria-hidden="true" style="--notifier-avatar-hue:'
             + hueOf(item.actor_name) + '">'
             + '<span class="notifier-avatar-initials">' + escapeHtml(initials) + '</span>'
-            + icon + '</div>';
+            + img + icon + '</div>';
     }
 
     function toggleButtonHtml(action, isUnread) {

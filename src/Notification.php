@@ -1194,6 +1194,7 @@ class Notification extends CommonDBTM
                 'glpi_users.firstname AS actor_firstname',
                 'glpi_users.realname AS actor_realname',
                 'glpi_users.name AS actor_login',
+                'glpi_users.picture AS actor_picture',
                 new QueryExpression('UNIX_TIMESTAMP(`' . $table . '`.`date_creation`) AS `created_ts`'),
             ],
             'FROM'      => $table,
@@ -1223,7 +1224,8 @@ class Notification extends CommonDBTM
                 'message'    => $row['message'],
                 'url'        => $row['url'],
                 'is_read'    => (bool)$row['is_read'],
-                'actor_name' => self::formatActorName($row),
+                'actor_name'   => self::formatActorName($row),
+                'actor_avatar' => self::actorAvatarUrl($row),
                 // Epoch: browser and database need not share a timezone.
                 'created_ts' => (int)($row['created_ts'] ?? 0),
             ];
@@ -1238,6 +1240,16 @@ class Notification extends CommonDBTM
             return $full;
         }
         return (string)($row['actor_login'] ?? '');
+    }
+
+    /** Thumbnail URL for the actor's GLPI profile picture, '' when they have none. */
+    private static function actorAvatarUrl(array $row): string
+    {
+        $picture = (string)($row['actor_picture'] ?? '');
+        if ($picture === '') {
+            return '';
+        }
+        return (string)User::getThumbnailURLForPicture($picture);
     }
 
     public static function countUnread(int $users_id): int
