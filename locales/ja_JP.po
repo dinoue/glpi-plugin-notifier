@@ -1,0 +1,551 @@
+# Notifier plugin translation template
+# Copyright (C) 2024-2026 DVBNL
+# This file is distributed under the same license as the Notifier plugin.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: notifier 1.0.0\n"
+"Report-Msgid-Bugs-To: https://github.com/dvbnl/glpi-plugin-notifier/issues\n"
+"POT-Creation-Date: 2026-07-31 16:23+0200\n"
+"PO-Revision-Date: 2026-08-02 16:45+0900\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ja_JP\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Poedit 3.9\n"
+
+#: setup.php:50 front/config.form.php:27
+msgid "Notifier - In-app notifications"
+msgstr "通知ベル - アプリ内通知"
+
+#: front/config.form.php:22
+msgid "Settings saved"
+msgstr "設定を保存しました"
+
+#: src/Config.php:128
+msgid "Notifier"
+msgstr "通知ベル"
+
+#: src/Config.php:145
+msgid "Notification bell settings"
+msgstr "通知ベル設定"
+
+#: src/Config.php:150
+msgid "General"
+msgstr "全般"
+
+#: src/Config.php:154
+msgid "Polling interval (seconds)"
+msgstr "チェック間隔 (秒)"
+
+#: src/Config.php:157
+msgid ""
+"How often an open page checks for new notifications. Hidden tabs pause "
+"automatically."
+msgstr ""
+"新しい通知をチェックする頻度。非表示タブでは自動的にチェックを一時停止しま"
+"す。"
+
+#: src/Config.php:162
+msgid "Notifications per page"
+msgstr "ページごとの通知"
+
+#: src/Config.php:165
+msgid "Size of one batch in the panel. Users can load more."
+msgstr "パネル内の一括処理のサイズ。より多くの処理を行うことができます。"
+
+#: src/Config.php:170
+msgid "Retention (days)"
+msgstr "保持期間 (日)"
+
+#: src/Config.php:173
+msgid ""
+"Read notifications older than this are purged by the NotifierCleanup cron "
+"task. 0 keeps everything."
+msgstr ""
+"この日数より古い既読の通知は、通知クリーンアップ cron タスクで抹消します。0 "
+"ですべて保持。"
+
+#: src/Config.php:178
+msgid "Show the bell in the self-service interface"
+msgstr "セルフサービス インターフェースにベルを表示"
+
+#: src/Config.php:180
+msgid ""
+"On by default. Turn this off to limit the bell to the central (technician) "
+"interface."
+msgstr ""
+"標準ではオフになっており、ベルはセンター (技術者) インターフェースのみに制限"
+"しています。"
+
+#: src/Config.php:184
+msgid "Features"
+msgstr "機能"
+
+#: src/Config.php:188
+msgid "Enable @-mentions"
+msgstr "@ メンションを有効に"
+
+#: src/Config.php:190
+msgid ""
+"Naming a user in a followup, task or solution notifies them even when they "
+"are not an actor on the item."
+msgstr ""
+"回答やタスク、解決において、そのアイテムの関係者ではなくとも、文中に名前があ"
+"る場合には通知します。"
+
+#: src/Config.php:195
+msgid "Enable quick actions"
+msgstr "クイック操作を有効に"
+
+#: src/Config.php:197
+msgid ""
+"Take the item, change its status or post a followup straight from the bell. "
+"Every action is rights-checked."
+msgstr ""
+"ベルからアイテムを選び、直接、その状態を変更したり回答を投稿したりすることが"
+"できます。すべての操作においてあらかじめ権限をチェックします。"
+
+#: src/Config.php:202
+msgid "Enable snooze"
+msgstr "スヌーズを有効に"
+
+#: src/Config.php:204
+msgid "Lets users hide a notification until later instead of marking it read."
+msgstr "既読にせず、いったん通知を非表示にし、後でまた通知します。"
+
+#: src/Config.php:209
+msgid "Enable deadline notifications"
+msgstr "締切通知を有効に"
+
+#: src/Config.php:211
+msgid ""
+"The NotifierDeadline cron task warns assignees before and after the "
+"resolution deadline is reached."
+msgstr "締切通知 cron タスクが解決締切前後に、担当者に警告を通知します。"
+
+#: src/Config.php:216
+msgid "Deadline warning lead time (minutes)"
+msgstr "締切警告事前時間 (分)"
+
+#: src/Config.php:219
+msgid "How long before time to resolve the first warning fires."
+msgstr "解決締切のどれぐらい前に最初の通知を発するかを指定します。"
+
+#: src/Config.php:223
+msgid "Event types"
+msgstr "イベント種別"
+
+#: src/Config.php:225
+msgid ""
+"Turn an event off here and it is never recorded for anyone. Users can "
+"additionally opt out per event in their own preferences."
+msgstr ""
+"ここで通知しないイベント種別を指定します。ここでの設定は全員に共通です。個々"
+"のユーザーは自身の設定で、イベント種別ごとに通知を受けないようにできます。"
+
+#: src/Config.php:239
+msgctxt "button"
+msgid "Save"
+msgstr "保存"
+
+#: src/Notification.php:49
+msgid "Notification"
+msgid_plural "Notifications"
+msgstr[0] "通知"
+
+#: src/Notification.php:77
+msgid "Assignment"
+msgstr "担当"
+
+#: src/Notification.php:78
+msgid "Creation"
+msgstr "作成"
+
+#: src/Notification.php:79 src/Notification.php:442
+msgid "New comment"
+msgstr "新しいコメント"
+
+#: src/Notification.php:80 src/Notification.php:489 ajax/boot.php:117
+msgid "New task"
+msgstr "新しいタスク"
+
+#: src/Notification.php:81 src/Notification.php:514
+msgid "Solution proposed"
+msgstr "解決の提案"
+
+#: src/Notification.php:82 src/Notification.php:369 src/Notification.php:411
+msgid "Status changed"
+msgstr "状態の変更"
+
+#: src/Notification.php:83 src/Notification.php:372
+msgid "Item updated"
+msgstr "アイテムの更新"
+
+#: src/Notification.php:84
+msgid "Approval"
+msgstr "承認要求"
+
+#: src/Notification.php:85
+msgid "Mention"
+msgstr "メンション"
+
+#: src/Notification.php:86
+msgid "Deadline"
+msgstr "締切"
+
+#: src/Notification.php:362
+msgid "New item concerning you"
+msgstr "自分に関わる新アイテム"
+
+#: src/Notification.php:403
+msgid "New project task concerning you"
+msgstr "自分に関わる新プロジェクトタスク"
+
+#: src/Notification.php:414
+msgid "Project task updated"
+msgstr "プロジェクトタスクの更新"
+
+#: src/Notification.php:577
+msgid "Approval requested"
+msgstr "承認要求"
+
+#: src/Notification.php:594
+msgid "Approval status changed"
+msgstr "承認要求の状態変更"
+
+#: src/Notification.php:652
+msgid "You have been assigned"
+msgstr "あなたが担当に"
+
+#: src/Notification.php:688
+msgid "Your group has been assigned"
+msgstr "あなたのグループが担当に"
+
+#: src/Notification.php:727
+msgid "You have been added to a project task"
+msgstr "プロジェクトタスクの担当に"
+
+#: src/Notification.php:764
+msgid "You were mentioned"
+msgstr "メンションされてます"
+
+#: src/Notification.php:1496
+msgid "Purge old in-app notifications"
+msgstr "古い内蔵通知の抹消"
+
+#: src/Notification.php:1498
+msgid "Notify assignees about approaching resolution deadlines"
+msgstr "解決締切が迫っていることを担当者に通知"
+
+#: src/Notification.php:1633
+msgid "Resolution deadline passed"
+msgstr "解決締切が過ぎました"
+
+#: src/Notification.php:1634
+msgid "Resolution deadline approaching"
+msgstr "解決締切が迫っています"
+
+#: ajax/boot.php:49
+msgid "Notifications"
+msgstr "通知"
+
+#: ajax/boot.php:50
+msgid "Mark all as read"
+msgstr "すべて既読に"
+
+#: ajax/boot.php:51
+msgid "Mark as read"
+msgstr "既読に"
+
+#: ajax/boot.php:52
+msgid "Mark as unread"
+msgstr "未読に"
+
+#: ajax/boot.php:53
+msgid "No notifications"
+msgstr "通知なし"
+
+#: ajax/boot.php:54
+msgid "You're all caught up."
+msgstr "未読はありません。"
+
+#: ajax/boot.php:55
+msgid "Nothing matches your search"
+msgstr "検索に一致するものはありません"
+
+#: ajax/boot.php:56
+msgid "Try a different word, or clear the search box."
+msgstr "別の語句で検索するか、検索ボックスをクリアーしてください。"
+
+#: ajax/boot.php:57
+msgid "Minimize"
+msgstr "最小化"
+
+#: ajax/boot.php:58
+msgid "Expand notifications"
+msgstr "通知を展開する"
+
+#: ajax/boot.php:59
+msgid "All"
+msgstr "すべて"
+
+#: ajax/boot.php:60
+msgid "Unread"
+msgstr "未読"
+
+#: ajax/boot.php:61
+msgid "Settings"
+msgstr "設定"
+
+#: ajax/boot.php:62
+msgid "Notification preferences"
+msgstr "通知設定"
+
+#: ajax/boot.php:63
+msgid ""
+"Choose which updates you want to receive. Direct updates are about items "
+"assigned to you; group updates are about items assigned to one of your "
+"groups."
+msgstr ""
+"通知を受けたいものを選んでください。直接更新は自分が担当のアイテムについて、"
+"グループ更新は自分のグループのだれかが担当のアイテムについてです。"
+
+#: ajax/boot.php:64
+msgid "Assigned to me"
+msgstr "自分が担当"
+
+#: ajax/boot.php:65
+msgid "Assigned to my group"
+msgstr "グループが担当"
+
+#: ajax/boot.php:66
+msgid "Tickets"
+msgstr "チケット"
+
+#: ajax/boot.php:67
+msgid "Changes"
+msgstr "変更"
+
+#: ajax/boot.php:68
+msgid "Problems"
+msgstr "問題"
+
+#: ajax/boot.php:69
+msgid "Project tasks"
+msgstr "プロジェクトタスク"
+
+#: ajax/boot.php:70
+msgid "Save"
+msgstr "保存"
+
+#: ajax/boot.php:71
+msgid "Cancel"
+msgstr "キャンセル"
+
+#: ajax/boot.php:72
+msgid "Preferences saved"
+msgstr "設定を保存しました"
+
+#: ajax/boot.php:73
+msgid "Close"
+msgstr "閉じる"
+
+#: ajax/boot.php:74
+msgid "{n} updates"
+msgstr "{n} 件の更新"
+
+#: ajax/boot.php:75
+msgid "Show all updates"
+msgstr "すべての更新を表示"
+
+#: ajax/boot.php:76
+msgid "Hide updates"
+msgstr "更新を非表示"
+
+#: ajax/boot.php:78
+msgid "Search"
+msgstr "検索"
+
+#: ajax/boot.php:79
+msgid "Search notifications"
+msgstr "通知の検索"
+
+#: ajax/boot.php:80
+msgid "Clear search"
+msgstr "クリアー"
+
+#: ajax/boot.php:81
+msgid "Load more"
+msgstr "もっと表示"
+
+#: ajax/boot.php:82
+msgid "Loading"
+msgstr "読み込んでいます"
+
+#: ajax/boot.php:83
+msgid "Refresh"
+msgstr "画面更新"
+
+#: ajax/boot.php:84
+msgid "Reconnecting"
+msgstr "再接続しています"
+
+#: ajax/boot.php:86
+msgid "Snooze"
+msgstr "スヌーズ"
+
+#: ajax/boot.php:87
+msgid "For 1 hour"
+msgstr "1 時間後に"
+
+#: ajax/boot.php:88
+msgid "For 3 hours"
+msgstr "3 時間後に"
+
+#: ajax/boot.php:89
+msgid "Until tomorrow morning"
+msgstr "明朝まで"
+
+#: ajax/boot.php:90
+msgid "Snoozed"
+msgstr "スヌーズしました"
+
+#: ajax/boot.php:92
+msgid "Quick actions"
+msgstr "クイック操作"
+
+#: ajax/boot.php:93
+msgid "Assign to me"
+msgstr "自分が担当"
+
+#: ajax/boot.php:94
+msgid "Change status"
+msgstr "状態を変更"
+
+#: ajax/boot.php:95
+msgid "Reply"
+msgstr "返信"
+
+#: ajax/boot.php:96
+msgid "Write a short reply…"
+msgstr "短く返信する…"
+
+#: ajax/boot.php:97
+msgid "Send"
+msgstr "送信"
+
+#: ajax/boot.php:98
+msgid "Done"
+msgstr "完了"
+
+#: ajax/boot.php:99
+msgid "That did not work"
+msgstr "動作しません"
+
+#: ajax/boot.php:100
+msgid "You are not allowed to do that"
+msgstr "権限がありません"
+
+#: ajax/boot.php:102
+msgid "Which items"
+msgstr "どのアイテム"
+
+#: ajax/boot.php:103
+msgid "Which events"
+msgstr "どのイベント"
+
+#: ajax/boot.php:104
+msgid "How to be alerted"
+msgstr "通知方法"
+
+#: ajax/boot.php:105
+msgid "Turn off the event types you never want to see in the bell."
+msgstr "ベルに表示したくないイベント種別をオフにしてください。"
+
+#: ajax/boot.php:106
+msgid "Desktop notifications"
+msgstr "デスクトップ通知"
+
+#: ajax/boot.php:107
+msgid ""
+"Show a system notification when something new arrives. Your browser will ask "
+"for permission."
+msgstr ""
+"新しい通知があった際にシステム通知を表示します。ブラウザから確認が表示されま"
+"す。"
+
+#: ajax/boot.php:108
+msgid "Play a sound"
+msgstr "音を鳴らす"
+
+#: ajax/boot.php:109
+msgid "A short chime when a new notification arrives."
+msgstr "新しい通知があった際に短いチャイムを鳴らします。"
+
+#: ajax/boot.php:110
+msgid "Your browser blocked notifications for this site."
+msgstr "ブラウザがこのサイトからの通知をブロックしています。"
+
+#: ajax/boot.php:112
+msgid "New notification"
+msgstr "新しい通知"
+
+#: ajax/boot.php:113
+msgid "{name} and {n} others"
+msgstr "{name} と他 {n} 人"
+
+#: ajax/boot.php:115
+msgid "Reminders"
+msgstr "リマインダー"
+
+#: ajax/boot.php:116
+msgid "What still needs doing?"
+msgstr "やるべきことは？"
+
+#: ajax/boot.php:118
+msgid "Remind me at"
+msgstr "リマインダー設定 :"
+
+#: ajax/boot.php:119
+msgid "In 1 hour"
+msgstr "1 時間後"
+
+#: ajax/boot.php:120
+msgid "Tomorrow 9:00"
+msgstr "明日 9:00"
+
+#: ajax/boot.php:121
+msgid "Add"
+msgstr "追加"
+
+#: ajax/boot.php:122
+msgid "Nothing on your list"
+msgstr "リストに何もありません"
+
+#: ajax/boot.php:123
+msgid "Jot something down and it will find you here."
+msgstr "ここに書き留めておけば、後で確認できます。"
+
+#: ajax/boot.php:124
+msgid "Mark as done"
+msgstr "完了とマーク"
+
+#: ajax/boot.php:125
+msgid "Not done yet"
+msgstr "未了"
+
+#: ajax/boot.php:126
+msgid "Delete"
+msgstr "削除"
+
+#: ajax/boot.php:127
+msgid "Due"
+msgstr "期限"
+
+#: ajax/boot.php:128
+msgid "Reminder"
+msgstr "リマインダー"
