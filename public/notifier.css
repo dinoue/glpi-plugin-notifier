@@ -18,15 +18,15 @@
     --notifier-purple:        var(--tblr-purple, #6f42c1);
     --notifier-teal:          var(--tblr-teal, #20c997);
     --notifier-pink:          var(--tblr-pink, #d63384);
-    --notifier-surface:       var(--tblr-bg-surface, #fff);
-    --notifier-surface-alt:   var(--tblr-bg-surface-secondary, #f8f9fa);
+    --notifier-surface:       var(--tblr-bg-surface, var(--tblr-card-bg, #fff));
     --notifier-border:        var(--tblr-border-color, rgba(0, 0, 0, .1));
     --notifier-text:          var(--tblr-body-color, #212529);
     /* Derived from the resolved body colour, never from
        --tblr-secondary-color: dark themes routinely set that to a
        near-black that vanishes against their own panel background. */
     --notifier-text-muted:    color-mix(in srgb, var(--notifier-text) 72%, transparent);
-    --notifier-row-hover:     var(--tblr-bg-surface-tertiary, #f1f3f5);
+    --notifier-surface-alt:   color-mix(in srgb, var(--notifier-surface), var(--notifier-text) 5%);
+    --notifier-row-hover:     color-mix(in srgb, var(--notifier-surface), var(--notifier-text) 9%);
 }
 
 .notifier-visually-hidden {
@@ -1661,7 +1661,7 @@
 .notifier-config-hint {
     font-size: 12px;
     font-weight: 400;
-    color: var(--tblr-secondary-color, #6c757d);
+    color: color-mix(in srgb, var(--tblr-body-color, #212529) 72%, transparent);
     margin-top: 3px;
     max-width: 60ch;
 }
