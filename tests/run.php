@@ -236,6 +236,38 @@ foreach ($slugs as $slug) {
 check('event preferences default to on', $defaults['notify_event_mention'], 1);
 check('desktop notifications are opt-in', $defaults['desktop_enabled'], 0);
 check('sound is opt-in', $defaults['sound_enabled'], 0);
+check('entity channel is opt-in', $defaults['notify_ticket_entity'], 0);
+checkTrue('project tasks have no entity channel', !isset($defaults['notify_projecttask_entity']));
+
+resetStatic(Notification::class, 'prefsCache', []);
+$filter = (string)(new ReflectionMethod(Notification::class, 'prefFilterExpression'))->invoke(null, 1);
+checkTrue(
+    'default filter hides only the entity channel for tickets',
+    str_contains($filter, "`itemtype` = 'Ticket' AND `glpi_plugin_notifier_notifications`.`channel` IN ('entity')")
+);
+checkTrue('default filter leaves project tasks alone', !str_contains($filter, 'ProjectTask'));
+checkTrue('mentions escape the channel filter', str_contains($filter, "NOT IN ('mention', 'deadline')"));
+
+$watchers = new ReflectionMethod(Notification::class, 'collectEntityWatchers');
+
+Config::$store = ['plugin:notifier' => ['entity_watch_enabled' => 0]];
+resetStatic(NotifierConfig::class, 'cache', null);
+check('entity watch is silent when disabled', $watchers->invoke(null, 'Ticket', 3), []);
+
+Config::$store = [];
+resetStatic(NotifierConfig::class, 'cache', null);
+check('entity watch is silent before the preference column exists', $watchers->invoke(null, 'Ticket', 3), []);
+check('entity watch ignores project tasks', $watchers->invoke(null, 'ProjectTask', 3), []);
+
+$DB->tables[]  = 'glpi_plugin_notifier_preferences';
+$DB->fields[]  = 'glpi_plugin_notifier_preferences.notify_ticket_entity';
+$DB->fixtures['glpi_plugin_notifier_preferences'] = [['users_id' => 5], ['users_id' => 0]];
+$DB->queries   = [];
+check('entity watchers come back on the entity channel', $watchers->invoke(null, 'Ticket', 3), [5 => 'entity']);
+$where = $DB->queries[0]['WHERE'] ?? [];
+check('entity watch requires the ticket right', $where['glpi_profilerights.name'] ?? null, 'ticket');
+check('entity watch scopes to the item entity', $where['glpi_profiles_users.entities_id'] ?? null, 3);
+unset($DB->fixtures['glpi_plugin_notifier_preferences']);
 
 // ---------------------------------------------------------------- Config
 

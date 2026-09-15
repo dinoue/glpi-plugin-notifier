@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.5] - 2026-09-15
+
+### Added
+- **Reminder from a notification**: every row in the bell now carries a bookmark button that turns the notification into a personal reminder — in an hour, tomorrow morning, or with no time at all. The reminder links back to the item, so "I still need to do something with this" no longer depends on leaving the notification unread. A row whose item already has an open reminder shows the bookmark filled in
+- **Movable bell** ([#2](https://github.com/dvbnl/glpi-plugin-notifier/issues/2)): drag the bell when it sits in the way of a form button. It snaps to a grid of roughly 80px steps, shown as dots while dragging, so it always lines up and the edges stay reachable. The panel opens upwards or downwards and left or right depending on where the bell is, the minimize tab tucks into the nearest edge, and the position is remembered per browser. A plain click still opens the panel; only a real drag moves it
+- **Entity watch** ([#3](https://github.com/dvbnl/glpi-plugin-notifier/issues/3)): a third channel next to "assigned to me" and "assigned to my group". Technicians who opt in get a bell for every new ticket, change or problem created in an entity they hold the type's update right in, directly or through a recursive profile, even before anyone is assigned. Opt-in per user and per type since an entity can be busy. an administrator can disable the feature instance-wide. Direct and group notifications take precedence, so nobody gets the same event twice
+
+### Changed
+- The per-user channel filter is now generic over channels instead of special-casing direct and group, in preparation for the entity channel
+- Translation template regenerated; Dutch, French, Spanish, Japanese and British English are complete for the new strings
+
 ## [1.0.4] - 2026-07-31
 
 ### Added

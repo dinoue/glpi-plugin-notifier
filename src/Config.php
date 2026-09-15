@@ -27,6 +27,7 @@ class Config
             'mentions_enabled'      => 1,
             'quick_actions_enabled' => 1,
             'snooze_enabled'        => 1,
+            'entity_watch_enabled'  => 1,
             'deadline_enabled'      => 1,
             'deadline_lead_minutes' => 60,
         ];
@@ -202,6 +203,13 @@ class Config
             __('Enable snooze', 'notifier'),
             $cfg['snooze_enabled'],
             __('Lets users hide a notification until later instead of marking it read.', 'notifier')
+        );
+
+        self::boolRow(
+            'entity_watch_enabled',
+            __('Enable entity watch', 'notifier'),
+            $cfg['entity_watch_enabled'],
+            __('Lets technicians opt in to a bell for every new ticket, change or problem created in an entity they have update rights in, even before anyone is assigned.', 'notifier')
         );
 
         self::boolRow(

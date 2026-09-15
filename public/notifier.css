@@ -5,7 +5,8 @@
  */
 
 .notifier-bell-wrap,
-.notifier-modal-overlay {
+.notifier-modal-overlay,
+.notifier-grid-overlay {
     --notifier-primary:       var(--tblr-primary, var(--bs-primary, var(--primary, #0d6efd)));
     --notifier-primary-rgb:   var(--tblr-primary-rgb, var(--bs-primary-rgb, 13, 110, 253));
     /* Derive the pressed shade from the resolved primary; --tblr-primary-darker
@@ -142,6 +143,84 @@
     right: 0;
     left: auto;
     transform-origin: bottom right;
+}
+
+/* ====== Dragged position ====== */
+
+.notifier-bell-wrap.notifier-bell-floating .notifier-bell-btn {
+    touch-action: none;
+}
+
+.notifier-bell-wrap.notifier-bell-floating.has-position {
+    left: var(--notifier-x);
+    top: var(--notifier-y);
+    right: auto;
+    bottom: auto;
+    transition: right .2s ease, left .2s ease, top .2s ease;
+}
+
+.notifier-grid-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10049;
+    pointer-events: none;
+    background-image: radial-gradient(circle, rgba(var(--notifier-primary-rgb), .45) 2px, transparent 3px);
+    animation: notifier-fade-in .15s ease-out;
+}
+
+@keyframes notifier-fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.notifier-bell-wrap.notifier-bell-floating.is-dragging .notifier-bell-btn {
+    cursor: grabbing;
+    transform: scale(1.05);
+}
+
+.notifier-bell-wrap.notifier-bell-floating.has-position.is-collapsed {
+    left: auto;
+    right: -36px;
+}
+
+.notifier-bell-wrap.notifier-bell-floating.has-position.is-collapsed:hover {
+    right: -20px;
+}
+
+.notifier-bell-wrap.notifier-bell-floating.has-position.is-left.is-collapsed {
+    left: -36px;
+    right: auto;
+}
+
+.notifier-bell-wrap.notifier-bell-floating.has-position.is-left.is-collapsed:hover {
+    left: -20px;
+}
+
+.notifier-bell-wrap.notifier-bell-floating.is-left .notifier-bell-restore {
+    left: auto;
+    right: -14px;
+    transform: scaleX(-1);
+}
+
+.notifier-bell-wrap.notifier-bell-floating.has-position .notifier-bell-panel {
+    max-height: min(640px, var(--notifier-panel-max));
+    right: var(--notifier-panel-dx, 0px);
+}
+
+.notifier-bell-wrap.notifier-bell-floating.has-position.is-left .notifier-bell-panel {
+    right: auto;
+    left: var(--notifier-panel-dx, 0px);
+    transform-origin: bottom left;
+}
+
+.notifier-bell-wrap.notifier-bell-floating.is-top .notifier-bell-panel {
+    bottom: auto;
+    top: calc(100% + 12px);
+    transform-origin: top right;
+}
+
+.notifier-bell-wrap.notifier-bell-floating.is-top.is-left .notifier-bell-panel {
+    transform-origin: top left;
 }
 
 .notifier-bell-btn {
@@ -643,6 +722,7 @@
 
 .notifier-bell-item-toggle,
 .notifier-bell-snooze,
+.notifier-bell-remind,
 .notifier-bell-group-expand {
     flex: 0 0 auto;
     align-self: center;
@@ -686,6 +766,7 @@
 }
 
 .notifier-bell-snooze,
+.notifier-bell-remind,
 .notifier-bell-group-expand {
     border: 0;
     background: transparent;
@@ -694,6 +775,8 @@
 
 .notifier-bell-snooze:hover,
 .notifier-bell-snooze:focus-visible,
+.notifier-bell-remind:hover,
+.notifier-bell-remind:focus-visible,
 .notifier-bell-group-expand:hover,
 .notifier-bell-group-expand:focus-visible {
     background: rgba(var(--notifier-primary-rgb), .1);
@@ -704,6 +787,20 @@
 .notifier-bell-group.is-expanded .notifier-bell-group-expand {
     color: var(--notifier-primary);
     transform: rotate(180deg);
+}
+
+.notifier-bell-remind.is-linked {
+    color: var(--notifier-primary);
+}
+
+.notifier-bell-remind.is-flash {
+    color: #fff;
+    background: var(--notifier-success);
+}
+
+.notifier-bell-remind.is-failed {
+    color: #fff;
+    background: var(--notifier-danger);
 }
 
 /* ====== Snooze menu ====== */

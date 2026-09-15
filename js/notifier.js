@@ -7,6 +7,11 @@
 
     var LS_COLLAPSED_KEY = 'notifier:collapsed';
     var LS_TAB_KEY       = 'notifier:tab';
+    var LS_POS_KEY       = 'notifier:pos';
+    var DRAG_THRESHOLD   = 6;
+    var BELL_MARGIN      = 20;
+    var GRID_STEP        = 80;
+    var swallowNextClick = false;
 
     // Backoff ceiling for a session where nothing changes.
     var MAX_IDLE_FACTOR  = 8;
@@ -36,10 +41,10 @@
     var failedPolls  = 0;
 
     var PREF_TYPES = [
-        { slug: 'ticket',      typeLabelKey: 'typeTicket',      direct: 'notify_ticket_direct',      group: 'notify_ticket_group' },
-        { slug: 'change',      typeLabelKey: 'typeChange',      direct: 'notify_change_direct',      group: 'notify_change_group' },
-        { slug: 'problem',     typeLabelKey: 'typeProblem',     direct: 'notify_problem_direct',     group: 'notify_problem_group' },
-        { slug: 'projecttask', typeLabelKey: 'typeProjectTask', direct: 'notify_projecttask_direct', group: 'notify_projecttask_group' }
+        { slug: 'ticket',      typeLabelKey: 'typeTicket',      direct: 'notify_ticket_direct',      group: 'notify_ticket_group',      entity: 'notify_ticket_entity' },
+        { slug: 'change',      typeLabelKey: 'typeChange',      direct: 'notify_change_direct',      group: 'notify_change_group',      entity: 'notify_change_entity' },
+        { slug: 'problem',     typeLabelKey: 'typeProblem',     direct: 'notify_problem_direct',     group: 'notify_problem_group',     entity: 'notify_problem_entity' },
+        { slug: 'projecttask', typeLabelKey: 'typeProjectTask', direct: 'notify_projecttask_direct', group: 'notify_projecttask_group', entity: null }
     ];
 
     // Hydrated by ajax/boot.php before first paint.
@@ -53,6 +58,7 @@
         noResults:           'Nothing matches your search',
         noResultsHint:       'Try a different word, or clear the search box.',
         minimize:            'Minimize',
+        dragHint:            'Drag to move',
         expand:              'Expand notifications',
         tabAll:              'All',
         tabUnread:           'Unread',
@@ -61,6 +67,8 @@
         preferencesIntro:    'Choose which updates you want to receive.',
         colDirect:           'Assigned to me',
         colGroup:            'Assigned to my group',
+        colEntity:           'New in my entities',
+        entityHint:          'Entity updates are new items created in an entity you have technician rights in, even before anyone is assigned. Off by default.',
         typeTicket:          'Tickets',
         typeChange:          'Changes',
         typeProblem:         'Problems',
@@ -117,7 +125,11 @@
         noteUndo:            'Not done yet',
         noteDelete:          'Delete',
         noteOverdue:         'Due',
-        noteReminder:        'Reminder'
+        noteReminder:        'Reminder',
+        remind:              'Create reminder',
+        remindNoTime:        'No time, just add to my list',
+        remindAdded:         'Added to your reminders',
+        remindExisting:      'Already on your reminder list'
     };
 
     var CFG = {
@@ -125,6 +137,7 @@
         list_limit:            25,
         quick_actions_enabled: true,
         snooze_enabled:        true,
+        entity_watch_enabled:  true,
         statuses:              {}
     };
 
@@ -142,6 +155,7 @@
         prefs:        {},
         notes:        [],
         notesDue:     0,
+        position:     null,
         loading:      false,
         offline:      false
     };
@@ -387,7 +401,8 @@
         var el = document.createElement('div');
         el.className = 'notifier-bell-wrap';
         el.innerHTML = ''
-            + '<button type="button" class="notifier-bell-btn" aria-label="' + escapeHtml(T.notifications) + '" aria-haspopup="dialog" aria-expanded="false">'
+            + '<button type="button" class="notifier-bell-btn" aria-label="' + escapeHtml(T.notifications) + '"'
+            +   ' title="' + escapeHtml(T.dragHint) + '" aria-haspopup="dialog" aria-expanded="false">'
             +   '<i class="fas fa-bell" aria-hidden="true"></i>'
             +   '<span class="notifier-bell-badge" hidden>0</span>'
             + '</button>'
@@ -493,6 +508,124 @@
         bell.classList.add('notifier-bell-floating');
         document.body.appendChild(bell);
         wireEvents(bell);
+        wireDrag(bell);
+
+        var stored = loadPosition();
+        if (stored) applyPosition(bell, stored);
+        window.addEventListener('resize', function() {
+            if (state.position) applyPosition(bell, state.position);
+        });
+    }
+
+    // ------------------------------------------------------------------ position
+
+    function loadPosition() {
+        try {
+            var pos = JSON.parse(localStorage.getItem(LS_POS_KEY) || 'null');
+            return pos && typeof pos.x === 'number' && typeof pos.y === 'number' ? pos : null;
+        } catch (e) { return null; }
+    }
+
+    function savePosition(pos) {
+        try { localStorage.setItem(LS_POS_KEY, JSON.stringify(pos)); } catch (e) { /* ignore */ }
+    }
+
+    // Evenly spaced slots between the two edges, roughly GRID_STEP apart.
+    function gridAxis(size, extent) {
+        var min   = BELL_MARGIN + size / 2;
+        var max   = extent - BELL_MARGIN - size / 2;
+        var steps = Math.max(1, Math.round((max - min) / GRID_STEP));
+        return { min: min, step: (max - min) / steps, steps: steps };
+    }
+
+    function nearestSlot(value, axis) {
+        var i = Math.round((value - axis.min) / axis.step);
+        return axis.min + Math.min(axis.steps, Math.max(0, i)) * axis.step;
+    }
+
+    // Stored as viewport fractions so it survives a resize.
+    function applyPosition(bell, pos) {
+        var btn = bell.querySelector('.notifier-bell-btn');
+        if (!btn) return;
+        var vw = window.innerWidth, vh = window.innerHeight;
+        var w  = btn.offsetWidth || 56,  h = btn.offsetHeight || 56;
+        var ax = gridAxis(w, vw), ay = gridAxis(h, vh);
+        var cx = nearestSlot(pos.x * vw, ax);
+        var cy = nearestSlot(pos.y * vh, ay);
+        state.position = { x: cx / vw, y: cy / vh };
+
+        var grid = document.querySelector('.notifier-grid-overlay');
+        if (grid) {
+            grid.style.backgroundSize = ax.step + 'px ' + ay.step + 'px';
+            grid.style.backgroundPosition = (ax.min - ax.step / 2) + 'px ' + (ay.min - ay.step / 2) + 'px';
+        }
+
+        var left   = Math.round(cx - w / 2);
+        var top    = Math.round(cy - h / 2);
+        var isTop  = cy < vh / 2;
+        var isLeft = cx < vw / 2;
+        var room   = isTop ? vh - (top + h) - 32 : top - 32;
+
+        // Keep the panel on screen when the bell sits away from an edge.
+        var panelW = vw <= 600 ? Math.min(460, vw - 28) : 440;
+        var spill  = isLeft
+            ? Math.max(0, left + panelW - (vw - BELL_MARGIN))
+            : Math.max(0, BELL_MARGIN - (left + w - panelW));
+
+        bell.style.setProperty('--notifier-x', left + 'px');
+        bell.style.setProperty('--notifier-y', top + 'px');
+        bell.style.setProperty('--notifier-panel-max', Math.max(0, room) + 'px');
+        bell.style.setProperty('--notifier-panel-dx', -spill + 'px');
+        bell.classList.add('has-position');
+        bell.classList.toggle('is-top', isTop);
+        bell.classList.toggle('is-left', isLeft);
+    }
+
+    function wireDrag(bell) {
+        var btn   = bell.querySelector('.notifier-bell-btn');
+        var start = null;
+
+        btn.addEventListener('pointerdown', function(e) {
+            if (e.button !== 0 || bell.classList.contains('is-collapsed')) return;
+            start = { id: e.pointerId, x: e.clientX, y: e.clientY, dragging: false };
+            try { btn.setPointerCapture(e.pointerId); } catch (err) { /* ignore */ }
+        });
+
+        btn.addEventListener('pointermove', function(e) {
+            if (!start) return;
+            if (!start.dragging) {
+                if (Math.abs(e.clientX - start.x) < DRAG_THRESHOLD && Math.abs(e.clientY - start.y) < DRAG_THRESHOLD) return;
+                start.dragging = true;
+                var rect = btn.getBoundingClientRect();
+                start.ox = e.clientX - (rect.left + rect.width / 2);
+                start.oy = e.clientY - (rect.top + rect.height / 2);
+                bell.classList.add('is-dragging');
+                closePanel(bell);
+                var grid = document.createElement('div');
+                grid.className = 'notifier-grid-overlay';
+                document.body.appendChild(grid);
+            }
+            applyPosition(bell, {
+                x: (e.clientX - start.ox) / window.innerWidth,
+                y: (e.clientY - start.oy) / window.innerHeight
+            });
+        });
+
+        function end() {
+            if (!start) return;
+            var dragged = start.dragging;
+            start = null;
+            bell.classList.remove('is-dragging');
+            var grid = document.querySelector('.notifier-grid-overlay');
+            if (grid) grid.remove();
+            if (!dragged) return;
+            savePosition(state.position);
+            // The click that follows pointerup would toggle the panel.
+            swallowNextClick = true;
+            setTimeout(function() { swallowNextClick = false; }, 300);
+        }
+        btn.addEventListener('pointerup', end);
+        btn.addEventListener('pointercancel', end);
     }
 
     // ------------------------------------------------------------------ render
@@ -828,6 +961,7 @@
             + '</div>'
             + '<div class="notifier-bell-item-actions">'
             +   (batched ? expandButtonHtml(isExpanded) : '')
+            +   remindButtonHtml(group)
             +   (CFG.snooze_enabled && groupUnread ? snoozeButtonHtml() : '')
             +   toggleButtonHtml(groupUnread ? 'group-read' : 'group-unread', groupUnread)
             + '</div>';
@@ -899,6 +1033,22 @@
             + ' title="' + escapeHtml(T.snooze) + '" aria-label="' + escapeHtml(T.snooze) + '"'
             + ' aria-haspopup="menu">'
             + '<i class="fas fa-clock" aria-hidden="true"></i></button>';
+    }
+
+    function hasOpenNoteFor(group) {
+        return state.notes.some(function(n) {
+            return !n.is_done && n.itemtype === group.itemtype && n.items_id === group.items_id;
+        });
+    }
+
+    function remindButtonHtml(group) {
+        var linked = hasOpenNoteFor(group);
+        var label  = linked ? T.remindExisting : T.remind;
+        return '<button type="button" class="notifier-bell-remind' + (linked ? ' is-linked' : '') + '"'
+            + ' data-action="remind"'
+            + ' title="' + escapeHtml(label) + '" aria-label="' + escapeHtml(label) + '"'
+            + ' aria-haspopup="menu">'
+            + '<i class="fas fa-bookmark" aria-hidden="true"></i></button>';
     }
 
     function buildQuickActions(group) {
@@ -1036,9 +1186,85 @@
     function closeSnoozeMenu() {
         var open = document.querySelector('.notifier-snooze-menu');
         if (open) open.remove();
-        document.querySelectorAll('.notifier-bell-snooze[aria-expanded="true"]').forEach(function(btn) {
-            btn.setAttribute('aria-expanded', 'false');
+        document.querySelectorAll('.notifier-bell-snooze[aria-expanded="true"], .notifier-bell-remind[aria-expanded="true"]')
+            .forEach(function(btn) { btn.setAttribute('aria-expanded', 'false'); });
+    }
+
+    // ------------------------------------------------------------------ reminder from a notification
+
+    function openRemindMenu(anchor, group) {
+        closeSnoozeMenu();
+
+        var tomorrow = Math.floor(Date.now() / 1000) + minutesUntilTomorrowMorning() * 60;
+        var menu = document.createElement('div');
+        menu.className = 'notifier-snooze-menu';
+        menu.setAttribute('role', 'menu');
+        menu.innerHTML = [
+            { ts: Math.floor(Date.now() / 1000) + 3600, label: T.noteIn1h },
+            { ts: tomorrow,                             label: T.noteTomorrow },
+            { ts: 0,                                    label: T.remindNoTime }
+        ].map(function(option) {
+            return '<button type="button" role="menuitem" data-remind="' + option.ts + '">'
+                + escapeHtml(option.label) + '</button>';
+        }).join('');
+
+        anchor.parentNode.appendChild(menu);
+        anchor.setAttribute('aria-expanded', 'true');
+
+        menu.addEventListener('click', function(e) {
+            var btn = e.target.closest('[data-remind]');
+            if (!btn) return;
+            e.preventDefault();
+            e.stopPropagation();
+            closeSnoozeMenu();
+            createReminder(group, parseInt(btn.dataset.remind, 10));
         });
+
+        var first = menu.querySelector('button');
+        if (first) first.focus();
+    }
+
+    function createReminder(group, remindTs) {
+        var params = {
+            action:   'add',
+            content:  group.title || (group.itemtype + ' #' + group.items_id),
+            itemtype: group.itemtype,
+            items_id: group.items_id
+        };
+        if (remindTs > 0) params.remind_ts = remindTs;
+
+        return call('notes.php', params).then(function(resp) {
+            if (resp && resp.notes) {
+                state.notes    = resp.notes;
+                state.notesDue = resp.due || 0;
+            }
+            render();
+            flashRemindButton(group.key, true);
+        }).catch(function(err) {
+            if (window.console) console.error('[notifier] create reminder failed:', err);
+            flashRemindButton(group.key, false);
+        });
+    }
+
+    // Painted after render(), which rebuilds the row.
+    function flashRemindButton(key, ok) {
+        var bell = wrap();
+        if (!bell) return;
+        var li = bell.querySelector('.notifier-bell-group[data-key="' + key.replace(/"/g, '') + '"]');
+        var btn = li ? li.querySelector('.notifier-bell-remind') : null;
+        if (!btn) return;
+
+        var icon = btn.querySelector('i');
+        btn.classList.add(ok ? 'is-flash' : 'is-failed');
+        btn.title = ok ? T.remindAdded : T.actionFailed;
+        if (icon) icon.className = 'fas ' + (ok ? 'fa-check' : 'fa-triangle-exclamation');
+
+        setTimeout(function() {
+            if (!btn.isConnected) return;
+            btn.classList.remove('is-flash', 'is-failed');
+            btn.title = btn.getAttribute('aria-label');
+            if (icon) icon.className = 'fas fa-bookmark';
+        }, 2600);
     }
 
     // ------------------------------------------------------------------ quick actions
@@ -1096,12 +1322,14 @@
         overlay.setAttribute('aria-label', T.preferencesTitle);
         overlay.hidden = true;
 
+        var withEntity = !!CFG.entity_watch_enabled;
         var typeRows = PREF_TYPES.map(function(p) {
             return ''
                 + '<tr>'
                 +   '<th scope="row">' + escapeHtml(T[p.typeLabelKey] || p.slug) + '</th>'
                 +   '<td>' + switchHtml(p.direct, T.colDirect) + '</td>'
                 +   '<td>' + switchHtml(p.group, T.colGroup) + '</td>'
+                +   (withEntity ? '<td>' + (p.entity ? switchHtml(p.entity, T.colEntity) : '') + '</td>' : '')
                 + '</tr>';
         }).join('');
 
@@ -1132,9 +1360,11 @@
             +       '<thead><tr><th></th>'
             +         '<th>' + escapeHtml(T.colDirect) + '</th>'
             +         '<th>' + escapeHtml(T.colGroup) + '</th>'
+            +         (withEntity ? '<th>' + escapeHtml(T.colEntity) + '</th>' : '')
             +       '</tr></thead>'
             +       '<tbody>' + typeRows + '</tbody>'
             +     '</table>'
+            +     (withEntity ? '<p class="notifier-pref-sub">' + escapeHtml(T.entityHint) + '</p>' : '')
 
             +     '<h4 class="notifier-pref-heading">' + escapeHtml(T.sectionEvents) + '</h4>'
             +     '<p class="notifier-pref-sub">' + escapeHtml(T.eventsIntro) + '</p>'
@@ -1377,6 +1607,10 @@
 
         btn.addEventListener('click', function(e) {
             e.stopPropagation();
+            if (swallowNextClick) {
+                swallowNextClick = false;
+                return;
+            }
             if (bell.classList.contains('is-collapsed')) {
                 setCollapsed(bell, false);
                 openPanel(bell);
@@ -1574,10 +1808,12 @@
         var key = groupLi.dataset.key;
         if (!key) return;
 
+        var known = eventsForKey(key);
         var group = {
             key:      key,
             itemtype: key.substring(0, key.indexOf(':')),
-            items_id: parseInt(key.substring(key.indexOf(':') + 1), 10)
+            items_id: parseInt(key.substring(key.indexOf(':') + 1), 10),
+            title:    known.length ? known[0].title : ''
         };
 
         var qaBox = e.target.closest('.notifier-qa');
@@ -1595,6 +1831,15 @@
             if (state.expanded.has(key)) state.expanded.delete(key);
             else                         state.expanded.add(key);
             render();
+            return;
+        }
+
+        var remindBtn = e.target.closest('.notifier-bell-remind');
+        if (remindBtn) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (remindBtn.getAttribute('aria-expanded') === 'true') closeSnoozeMenu();
+            else openRemindMenu(remindBtn, group);
             return;
         }
 
@@ -1684,7 +1929,11 @@
     });
 
     document.addEventListener('click', function(e) {
-        if (!e.target.closest('.notifier-snooze-menu') && !e.target.closest('.notifier-bell-snooze')) {
+        if (
+            !e.target.closest('.notifier-snooze-menu')
+            && !e.target.closest('.notifier-bell-snooze')
+            && !e.target.closest('.notifier-bell-remind')
+        ) {
             closeSnoozeMenu();
         }
     });

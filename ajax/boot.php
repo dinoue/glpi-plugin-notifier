@@ -32,6 +32,7 @@ Endpoint::json([
         'list_limit'            => NotifierConfig::get('list_limit'),
         'quick_actions_enabled' => (bool)NotifierConfig::get('quick_actions_enabled'),
         'snooze_enabled'        => (bool)NotifierConfig::get('snooze_enabled'),
+        'entity_watch_enabled'  => (bool)NotifierConfig::get('entity_watch_enabled'),
         'statuses'              => $statuses,
     ],
 
@@ -55,6 +56,7 @@ Endpoint::json([
         'noResults'            => __('Nothing matches your search', 'notifier'),
         'noResultsHint'        => __('Try a different word, or clear the search box.', 'notifier'),
         'minimize'             => __('Minimize', 'notifier'),
+        'dragHint'             => __('Drag to move', 'notifier'),
         'expand'               => __('Expand notifications', 'notifier'),
         'tabAll'               => __('All', 'notifier'),
         'tabUnread'            => __('Unread', 'notifier'),
@@ -63,6 +65,8 @@ Endpoint::json([
         'preferencesIntro'     => __('Choose which updates you want to receive. Direct updates are about items assigned to you; group updates are about items assigned to one of your groups.', 'notifier'),
         'colDirect'            => __('Assigned to me', 'notifier'),
         'colGroup'             => __('Assigned to my group', 'notifier'),
+        'colEntity'            => __('New in my entities', 'notifier'),
+        'entityHint'           => __('Entity updates are new items created in an entity you have technician rights in, even before anyone is assigned. Off by default.', 'notifier'),
         'typeTicket'           => __('Tickets', 'notifier'),
         'typeChange'           => __('Changes', 'notifier'),
         'typeProblem'          => __('Problems', 'notifier'),
@@ -126,5 +130,10 @@ Endpoint::json([
         'noteDelete'           => __('Delete', 'notifier'),
         'noteOverdue'          => __('Due', 'notifier'),
         'noteReminder'         => __('Reminder', 'notifier'),
+
+        'remind'               => __('Create reminder', 'notifier'),
+        'remindNoTime'         => __('No time, just add to my list', 'notifier'),
+        'remindAdded'          => __('Added to your reminders', 'notifier'),
+        'remindExisting'       => __('Already on your reminder list', 'notifier'),
     ],
 ]);

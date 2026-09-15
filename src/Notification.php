@@ -39,6 +39,19 @@ class Notification extends CommonDBTM
     /** A blanket itemtype opt-out must not silence these: both name you directly. */
     private const CHANNEL_FILTER_EXEMPT = [self::EVENT_MENTION, self::EVENT_DEADLINE];
 
+    const CHANNEL_DIRECT = 'direct';
+    const CHANNEL_GROUP  = 'group';
+    const CHANNEL_ENTITY = 'entity';
+
+    private const CHANNELS = [self::CHANNEL_DIRECT, self::CHANNEL_GROUP, self::CHANNEL_ENTITY];
+
+    /** Right whose UPDATE bit marks a technician for the entity channel. */
+    private const ENTITY_WATCH_RIGHTS = [
+        'Ticket'  => 'ticket',
+        'Change'  => 'change',
+        'Problem' => 'problem',
+    ];
+
     private const DEDUP_WINDOW_SECONDS = 60;
 
     // Leftovers are picked up on the next run.
@@ -104,6 +117,10 @@ class Notification extends CommonDBTM
             'notify_problem_group'      => 1,
             'notify_projecttask_direct' => 1,
             'notify_projecttask_group'  => 1,
+            // Opt-in: every new item in an entity can be a lot of bells.
+            'notify_ticket_entity'      => 0,
+            'notify_change_entity'      => 0,
+            'notify_problem_entity'     => 0,
         ];
 
         foreach (self::getEventSlugs() as $slug) {
@@ -232,17 +249,26 @@ class Notification extends CommonDBTM
         // partial opt-out leaves them visible.
         $disabled = [];
         foreach ($typeMap as $slug => $itemtype) {
-            $directOff = empty($prefs['notify_' . $slug . '_direct']);
-            $groupOff  = empty($prefs['notify_' . $slug . '_group']);
+            $channels = [];
+            $off      = [];
+            foreach (self::CHANNELS as $channel) {
+                $key = 'notify_' . $slug . '_' . $channel;
+                if (!array_key_exists($key, $prefs)) {
+                    continue;
+                }
+                $channels[] = $channel;
+                if (empty($prefs[$key])) {
+                    $off[] = "'{$channel}'";
+                }
+            }
 
-            if ($directOff && $groupOff) {
-                $clause = "{$itemCol} = '{$itemtype}'";
-            } elseif ($directOff) {
-                $clause = "{$itemCol} = '{$itemtype}' AND {$chanCol} = 'direct'";
-            } elseif ($groupOff) {
-                $clause = "{$itemCol} = '{$itemtype}' AND {$chanCol} = 'group'";
-            } else {
+            if (empty($off)) {
                 continue;
+            }
+            if (count($off) === count($channels)) {
+                $clause = "{$itemCol} = '{$itemtype}'";
+            } else {
+                $clause = "{$itemCol} = '{$itemtype}' AND {$chanCol} IN (" . implode(', ', $off) . ')';
             }
             $disabled[] = "({$clause} AND {$eventCol} NOT IN ({$exempt}))";
         }
@@ -352,15 +378,39 @@ class Notification extends CommonDBTM
             $targets   = array_diff_key($targets, $mentioned);
         }
 
-        if (empty($targets)) {
+        if ($isCreate) {
+            $watchers = self::collectEntityWatchers($type, (int)$base['entities_id']);
+            unset($watchers[(int)Session::getLoginUserID()]);
+            $watchers = array_diff_key($watchers, $mentioned);
+
+            // Someone in both sets gets the channel they have switched on,
+            // or the read-time filter would hide the only row they got.
+            $slug = strtolower($type);
+            foreach (array_keys(array_intersect_key($watchers, $targets)) as $uid) {
+                $prefs = self::getPreferences($uid);
+                if (!empty($prefs['notify_' . $slug . '_' . $targets[$uid]])) {
+                    unset($watchers[$uid]);
+                } else {
+                    unset($targets[$uid]);
+                }
+            }
+
+            if (!empty($targets)) {
+                self::dispatch($targets, $base + [
+                    'event'   => self::EVENT_CREATED,
+                    'message' => __('New item concerning you', 'notifier'),
+                ]);
+            }
+            if (!empty($watchers)) {
+                self::dispatch($watchers, $base + [
+                    'event'   => self::EVENT_CREATED,
+                    'message' => __('New item in an entity you watch', 'notifier'),
+                ]);
+            }
             return;
         }
 
-        if ($isCreate) {
-            self::dispatch($targets, $base + [
-                'event'   => self::EVENT_CREATED,
-                'message' => __('New item concerning you', 'notifier'),
-            ]);
+        if (empty($targets)) {
             return;
         }
 
@@ -818,6 +868,65 @@ class Notification extends CommonDBTM
             }
         }
 
+        return $users;
+    }
+
+    /** @return array<int, string> [user_id => 'entity'] */
+    private static function collectEntityWatchers(string $type, int $entities_id): array
+    {
+        global $DB;
+
+        if (!Config::get('entity_watch_enabled') || !isset(self::ENTITY_WATCH_RIGHTS[$type])) {
+            return [];
+        }
+
+        $prefTable = 'glpi_plugin_notifier_preferences';
+        $prefCol   = 'notify_' . strtolower($type) . '_entity';
+        if (!$DB->tableExists($prefTable) || !$DB->fieldExists($prefTable, $prefCol)) {
+            return [];
+        }
+
+        $ancestors = array_values(array_map('intval', getAncestorsOf('glpi_entities', $entities_id)));
+
+        $scope = ['glpi_profiles_users.entities_id' => $entities_id];
+        if (!empty($ancestors)) {
+            $scope = ['OR' => [
+                $scope,
+                [
+                    'glpi_profiles_users.entities_id'  => $ancestors,
+                    'glpi_profiles_users.is_recursive' => 1,
+                ],
+            ]];
+        }
+
+        $rs = $DB->request([
+            'SELECT'     => ['glpi_profiles_users.users_id'],
+            'DISTINCT'   => true,
+            'FROM'       => $prefTable,
+            'INNER JOIN' => [
+                'glpi_profiles_users' => ['ON' => [
+                    'glpi_profiles_users' => 'users_id',
+                    $prefTable            => 'users_id',
+                ]],
+                'glpi_profilerights' => ['ON' => [
+                    'glpi_profilerights'  => 'profiles_id',
+                    'glpi_profiles_users' => 'profiles_id',
+                ]],
+            ],
+            'WHERE'      => [
+                $prefTable . '.' . $prefCol => 1,
+                'glpi_profilerights.name'   => self::ENTITY_WATCH_RIGHTS[$type],
+                new QueryExpression('(`glpi_profilerights`.`rights` & ' . UPDATE . ') = ' . UPDATE),
+            ] + $scope,
+        ]);
+
+        $users = [];
+        foreach ($rs as $row) {
+            $uid = (int)$row['users_id'];
+            if ($uid > 0) {
+                $users[$uid] = self::CHANNEL_ENTITY;
+            }
+        }
         return $users;
     }
 

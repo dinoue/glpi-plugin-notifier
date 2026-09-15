@@ -145,6 +145,11 @@ class Session
     }
 }
 
+function getAncestorsOf(string $table, $id): array
+{
+    return [];
+}
+
 class Toolbox
 {
     public static function substr($str, $start, $length = null)

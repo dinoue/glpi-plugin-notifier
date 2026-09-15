@@ -81,6 +81,9 @@ function plugin_notifier_install(): bool
             `notify_problem_group`        TINYINT NOT NULL DEFAULT 1,
             `notify_projecttask_direct`   TINYINT NOT NULL DEFAULT 1,
             `notify_projecttask_group`    TINYINT NOT NULL DEFAULT 1,
+            `notify_ticket_entity`        TINYINT NOT NULL DEFAULT 0,
+            `notify_change_entity`        TINYINT NOT NULL DEFAULT 0,
+            `notify_problem_entity`       TINYINT NOT NULL DEFAULT 0,
             `notify_event_assigned`       TINYINT NOT NULL DEFAULT 1,
             `notify_event_created`        TINYINT NOT NULL DEFAULT 1,
             `notify_event_commented`      TINYINT NOT NULL DEFAULT 1,
@@ -104,6 +107,11 @@ function plugin_notifier_install(): bool
             ]);
         }
         // Opt-in, unlike everything else here.
+        foreach (['ticket', 'change', 'problem'] as $slug) {
+            $migration->addField('glpi_plugin_notifier_preferences', 'notify_' . $slug . '_entity', 'bool', [
+                'value' => 0,
+            ]);
+        }
         $migration->addField('glpi_plugin_notifier_preferences', 'desktop_enabled', 'bool', ['value' => 0]);
         $migration->addField('glpi_plugin_notifier_preferences', 'sound_enabled', 'bool', ['value' => 0]);
     }

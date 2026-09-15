@@ -32,6 +32,9 @@ A bell floats in the bottom-right of every GLPI page. Everything that happens on
 - **Deadline warnings** — a cron task warns assignees before `time to resolve` lands, and again once it is breached
 - **Quick actions** — assign the item to yourself, change its status or post a short reply without leaving the page
 - **Snooze** — hide a notification for an hour, three hours, or until tomorrow morning
+- **Reminder from a notification** — one click turns a notification into a personal reminder that links back to the item
+- **Movable bell** — drag it anywhere on the screen if it sits in the way; the spot is remembered per browser
+- **Entity watch** — opt in to a bell for every new ticket, change or problem in an entity you have technician rights in, before anyone is assigned
 - **Desktop notifications and sound** — opt-in per user, one popup per batch
 - **Grouped per item** — one row per ticket showing its latest event, actors summarised as "Jane and 2 others", expandable to the full history
 - **Search, paging, unread count in the tab title**
@@ -84,11 +87,15 @@ Without GLPI cron the bell still works; you only lose the purge and the deadline
 
 You never get a bell for your own actions.
 
-Click a row to jump to the item and mark its events read. The chevron expands the history and the quick actions, the clock snoozes, the cog opens preferences. Arrow keys move between rows, Enter opens, Escape closes.
+Click a row to jump to the item and mark its events read. The chevron expands the history and the quick actions, the bookmark creates a reminder, the clock snoozes, the cog opens preferences. Arrow keys move between rows, Enter opens, Escape closes.
+
+Drag the bell to move it. It snaps to a grid of roughly 80px steps, shown as dots while you drag, so it always lines up and the edges are always an option. The panel follows: it opens upwards or downwards and left or right depending on where the bell sits, and the minimize tab tucks into the nearest edge.
 
 ### Preferences
 
-Three sections: **which items** (per type, per channel), **which events**, and **how to be alerted** (desktop, sound). Everything defaults to on except desktop and sound. Mentions and deadline warnings ignore the item/channel matrix — both are explicitly about you — but honour their own event switch.
+Three sections: **which items** (per type, per channel), **which events**, and **how to be alerted** (desktop, sound). Everything defaults to on except desktop, sound and the entity channel. Mentions and deadline warnings ignore the item/channel matrix — both are explicitly about you — but honour their own event switch.
+
+The entity channel is for technicians who cover an entity rather than specific tickets: switch it on for a type and every new item created in an entity where your profile holds that type's update right lands in your bell, before anyone is assigned. Recursive profiles cover child entities. An administrator can turn the feature off for the whole instance.
 
 ## Security notes
 

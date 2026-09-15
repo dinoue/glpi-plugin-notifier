@@ -27,7 +27,10 @@ Features:
 - Deadline bells: a cron task warns assignees before time_to_resolve is reached and again when it is breached
 - Quick actions straight from the dropdown: take the ticket, change its status, or post a short followup without leaving the page
 - Snooze a notification for an hour, three hours, or until tomorrow
-- Per-user preferences: opt out per ITIL type, per channel (assigned to me / assigned to my group) and per event type
+- Turn any notification into a personal reminder with one click, so "I need to get back to this" survives marking it read
+- Drag the bell to any point on a snap grid; the spot is remembered per browser
+- Entity watch: technicians can opt in to a bell for every new ticket, change or problem created in an entity they have rights in, before anyone is assigned
+- Per-user preferences: opt out per ITIL type, per channel (assigned to me / assigned to my group / new in my entities) and per event type
 - Search and paginated "load more" inside the panel
 - Entity-aware: notifications respect GLPI entity visibility and disappear when an item is moved out of reach or deleted
 - Admin configuration page: retention, poll interval, page size, deadline lead time, global event toggles, and whether the self-service interface gets a bell
@@ -69,6 +72,11 @@ Features:
         <author>DVBNL</author>
     </authors>
     <versions>
+        <version>
+            <num>1.0.5</num>
+            <compatibility>~10.0,~11.0</compatibility>
+            <download_url>https://github.com/dvbnl/glpi-plugin-notifier/releases/download/v1.0.5/notifier-v1.0.5.zip</download_url>
+        </version>
         <version>
             <num>1.0.4</num>
             <compatibility>~10.0,~11.0</compatibility>
